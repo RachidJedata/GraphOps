@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <!-- Background gradient -->
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="50%" stop-color="#020617"/>
+      <stop offset="100%" stop-color="#000000"/>
+    </linearGradient>
+
+    <!-- Accent gradient -->
+    <linearGradient id="accentGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#6366f1" stop-opacity="0.35"/>
+    </linearGradient>
+
+    <!-- Soft glow -->
+    <radialGradient id="softGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.18"/>
+      <stop offset="100%" stop-color="transparent"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Base -->
+  <rect width="100%" height="100%" fill="url(#bgGradient)" />
+
+  <!-- Large abstract wave -->
+  <path
+    d="M-200 600
+       C 200 400, 500 800, 900 600
+       C 1200 450, 1500 700, 1700 550
+       L 1700 1000 L -200 1000 Z"
+    fill="url(#accentGradient)"
+  />
+
+  <!-- Secondary subtle wave -->
+  <path
+    d="M-200 450
+       C 250 300, 600 500, 1000 380
+       C 1250 300, 1550 450, 1700 320"
+    fill="none"
+    stroke="#38bdf8"
+    stroke-opacity="0.15"
+    stroke-width="2"
+  />
+
+  <!-- Glow behind logo area -->
+  <circle cx="720" cy="380" r="260" fill="url(#softGlow)" />
+
+  <!-- Decorative dots (tech feel) -->
+  <g fill="#e5e7eb" opacity="0.06">
+    <circle cx="200" cy="200" r="2"/>
+    <circle cx="260" cy="240" r="2"/>
+    <circle cx="300" cy="190" r="1.5"/>
+    <circle cx="1100" cy="180" r="2"/>
+    <circle cx="1160" cy="220" r="1.5"/>
+    <circle cx="1220" cy="200" r="2"/>
+  </g>
+</svg>
