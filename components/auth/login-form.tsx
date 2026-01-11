@@ -64,8 +64,8 @@ export function LoginForm({
       <form className={cn("flex flex-col gap-6", className)} onSubmit={form.handleSubmit(handleSubmit)} >
         <FieldGroup>
           <div className="flex flex-col items-center gap-1 text-center">
-            <h1 className="text-2xl font-bold text-primary-500">Login to your account</h1>
-            <p className=" text-sm text-balance text-primary-500/80">
+            <h1 className="text-2xl font-bold text-primary">Login to your account</h1>
+            <p className=" text-sm text-balance text-primary/80">
               Enter your email below to login to your account
             </p>
           </div>

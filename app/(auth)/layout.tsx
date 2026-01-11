@@ -1,5 +1,6 @@
 import { requireUnauth } from "@/lib/auth-utils"
 import Image from "next/image"
+import Link from "next/link";
 
 export default async function Layout({ children }: { children: React.ReactNode }) {
     await requireUnauth();
@@ -8,9 +9,9 @@ export default async function Layout({ children }: { children: React.ReactNode }
             {/* Left side: logo + form */}
             <div className="flex flex-col gap-4 p-6 md:p-10 md:pt-5">
                 <div className="flex justify-center gap-2 md:justify-start">
-                    <a href="#" className="flex items-center gap-2 font-medium">
+                    <Link href="/" className="flex items-center gap-2 font-medium">
                         <Image src="/logo.svg" width={180} height={180} alt="Logo" />
-                    </a>
+                    </Link>
                 </div>
 
                 <div className="flex flex-1 items-center justify-center">

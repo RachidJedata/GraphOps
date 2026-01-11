@@ -77,10 +77,10 @@ export function SignupForm({
         <FieldGroup>
           {/* Header */}
           <div className="flex flex-col items-center gap-1 text-center">
-            <h1 className="text-2xl font-bold text-primary-500">
+            <h1 className="text-2xl font-bold text-primary">
               Create an account
             </h1>
-            <p className="text-sm text-primary-500/80">
+            <p className="text-sm text-primary/80">
               Enter your information below to create your account
             </p>
           </div>
@@ -168,7 +168,7 @@ export function SignupForm({
 
           {/* Submit */}
           <Field>
-            <Button className="cursor-pointer bg-primary-500" type="submit" disabled={isPending}>
+            <Button className="cursor-pointer bg-primary" type="submit" disabled={isPending}>
               Create Account
             </Button>
           </Field>
