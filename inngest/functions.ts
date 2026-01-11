@@ -17,9 +17,14 @@ export const executeAI = inngest.createFunction(
             "gemini-generate-text",
             generateText,
             {
-                model: "google/gemini-2.5-flash",
+                model: google("gemini-2.5-flash"),
                 system: "",
                 prompt: "",
+                experimental_telemetry: {
+                    isEnabled: true,
+                    recordInputs: true,
+                    recordOutputs: true,
+                },
             }
         )
 
