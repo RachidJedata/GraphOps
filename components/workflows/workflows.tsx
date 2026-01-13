@@ -116,9 +116,9 @@ const WorkFlowItem = ({ workFlow }: { workFlow: WorkFlow }) => {
                     {workFlow.createdAt.toString() !== workFlow.updatedAt.toString() &&
                         (
                             <>
-                                Updated
-                                {formatDistanceToNow(workFlow.updatedAt, { addSuffix: true })}
-                                &bull;
+                                Updated {" "}
+                                {formatDistanceToNow(workFlow.updatedAt, { addSuffix: true })} {" "}
+                                &bull; {" "}
                             </>
                         )
                     }
