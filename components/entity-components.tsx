@@ -114,9 +114,6 @@ export function EntityContainer({
     children,
     className,
 }: EntityContainerProps) {
-
-    const workflows = useSuspenseWorkFlows();
-
     return (
         <section
             className={cn(
@@ -144,7 +141,7 @@ export function EntityContainer({
             </div>
 
             {/* Pagination / Footer */}
-            {pagination && workflows.data.totalPages > 1 && (
+            {pagination && (
                 <div className="shrink-0 border-t border-border px-6 py-3">
                     {pagination}
                 </div>
