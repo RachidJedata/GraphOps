@@ -2,7 +2,19 @@
 
 import Link from "next/link";
 import { cn } from "@/lib/utils";
-import { ChevronLeftIcon, ChevronRightIcon, PlusIcon, SearchIcon } from "lucide-react";
+import { AlertTriangleIcon, ArrowUpRightIcon, ChevronLeftIcon, ChevronRightIcon, FolderCodeIcon, Loader2Icon, PlusIcon, SearchIcon, Trash2Icon, XIcon } from "lucide-react";
+import {
+    Empty,
+    EmptyContent,
+    EmptyDescription,
+    EmptyHeader,
+    EmptyMedia,
+    EmptyTitle,
+} from "@/components/ui/empty";
+import { Button } from "./ui/button";
+import React from "react";
+import { Card } from "./ui/card";
+import { useSuspenseWorkFlows } from "@/hooks/workflows/use-workflows";
 
 type EntityHeaderProps = {
     title: string;
@@ -102,6 +114,9 @@ export function EntityContainer({
     children,
     className,
 }: EntityContainerProps) {
+
+    const workflows = useSuspenseWorkFlows();
+
     return (
         <section
             className={cn(
@@ -118,7 +133,7 @@ export function EntityContainer({
 
             {/* Search / Filters */}
             {search && (
-                <div className="border-b border-border px-6 py-3">
+                <div className="border-border px-6 pt-3 pb-1 justify-end flex">
                     {search}
                 </div>
             )}
@@ -129,7 +144,7 @@ export function EntityContainer({
             </div>
 
             {/* Pagination / Footer */}
-            {pagination && (
+            {pagination && workflows.data.totalPages > 1 && (
                 <div className="shrink-0 border-t border-border px-6 py-3">
                     {pagination}
                 </div>
@@ -288,3 +303,307 @@ export function EntityPagination({
         </div>
     );
 }
+
+
+interface StateViewProps {
+    message?: string;
+}
+
+interface LoadingViewProps extends StateViewProps {
+    entity?: string;
+}
+
+export const LoadingView = ({
+    entity,
+    message,
+}: LoadingViewProps) => {
+    const label =
+        message ??
+        (entity ? `Loading ${entity}…` : "Loading…");
+
+    return (
+        <div
+            className={cn(
+                "flex h-full w-full flex-col items-center justify-center gap-3",
+                "rounded-lg border border-dashed border-border bg-background p-8 text-center"
+            )}
+        >
+            {/* Spinner */}
+            <Loader2Icon className="h-6 w-6 animate-spin text-primary" />
+
+            {/* Text */}
+            <p className="text-sm font-medium text-muted-foreground">
+                {label}
+            </p>
+        </div>
+    );
+};
+
+
+
+interface ErrorViewProps extends StateViewProps {
+    entity?: string;
+    onRetry?: () => void;
+}
+
+export const ErrorView = ({
+    entity,
+    message,
+    onRetry,
+}: ErrorViewProps) => {
+    const label =
+        message ??
+        (entity
+            ? `Failed to load ${entity}. Please try again.`
+            : "Something went wrong. Please try again.");
+
+    return (
+        <div
+            className={cn(
+                "flex h-full w-full flex-col items-center justify-center gap-3",
+                "rounded-lg border border-dashed border-destructive/40",
+                "bg-background p-8 text-center"
+            )}
+        >
+            {/* Icon */}
+            <AlertTriangleIcon className="h-6 w-6 text-destructive" />
+
+            {/* Message */}
+            <p className="max-w-md text-sm font-medium text-muted-foreground">
+                {label}
+            </p>
+
+            {/* Action */}
+            {onRetry && (
+                <button
+                    onClick={onRetry}
+                    className={cn(
+                        "mt-2 inline-flex items-center rounded-lg border border-input",
+                        "px-4 py-2 text-sm font-medium transition",
+                        "hover:bg-accent hover:text-accent-foreground",
+                        "focus:outline-none focus:ring-2 focus:ring-primary/40"
+                    )}
+                >
+                    Retry
+                </button>
+            )}
+        </div>
+    );
+};
+
+
+
+
+interface EmptyViewProps extends StateViewProps {
+    entity?: string;
+    actionLabel?: string;
+    onAction?: () => void;
+    secondaryActionLabel?: string;
+    onSecondaryAction?: () => void;
+    learnMoreHref?: string;
+}
+
+export function EmptyView({
+    entity,
+    message,
+    actionLabel,
+    onAction,
+    secondaryActionLabel,
+    onSecondaryAction,
+    learnMoreHref,
+}: EmptyViewProps) {
+    const title = entity ? `No ${entity} Found` : "Nothing here yet";
+    const description =
+        message ??
+        (entity
+            ? `Haven’t found any ${entity} `
+            : "There’s no data to display right now.");
+
+    return (
+        <Empty>
+            <EmptyHeader>
+                <EmptyMedia variant="icon">
+                    <FolderCodeIcon />
+                </EmptyMedia>
+
+                <EmptyTitle>{title}</EmptyTitle>
+
+                <EmptyDescription>{description}</EmptyDescription>
+            </EmptyHeader>
+
+            {(onAction || onSecondaryAction) && (
+                <EmptyContent>
+                    <div className="flex gap-2">
+                        {onAction && actionLabel && (
+                            <Button onClick={onAction}>
+                                <PlusIcon />
+                                {actionLabel}
+                            </Button>
+                        )}
+
+                        {onSecondaryAction && secondaryActionLabel && (
+                            <Button
+                                variant="outline"
+                                onClick={onSecondaryAction}
+                            >
+                                {secondaryActionLabel}
+                            </Button>
+                        )}
+                    </div>
+                </EmptyContent>
+            )}
+
+            {learnMoreHref && (
+                <Button
+                    variant="link"
+                    asChild
+                    className="text-primary"
+                    size="sm"
+                >
+                    <a href={learnMoreHref}>
+                        Learn more <ArrowUpRightIcon className="h-4 w-4" />
+                    </a>
+                </Button>
+            )}
+        </Empty>
+    );
+}
+
+interface EntityListProps<T> {
+    items: T[];
+    renderItem: (item: T, index: number) => React.ReactNode;
+    getKey?: (item: T, index: number) => string | number;
+    emptyView?: React.ReactNode;
+    className?: string;
+}
+
+
+
+export function EntityList<T>({
+    items,
+    renderItem,
+    getKey,
+    emptyView,
+    className,
+}: EntityListProps<T>) {
+    if (!items || items.length === 0) {
+        return (
+            <div className="flex h-full items-center justify-center">
+                {emptyView ?? null}
+            </div>
+        );
+    }
+
+    return (
+        <div
+            className={cn(className, "flex flex-col gap-2")}
+        >
+            {items.map((item, index) => (
+                <React.Fragment
+                    key={
+                        getKey
+                            ? getKey(item, index)
+                            : index
+                    }
+                >
+                    {renderItem(item, index)}
+                </React.Fragment>
+            ))}
+        </div>
+    );
+}
+
+
+interface EntityItemProps {
+    href: string;
+    title: string;
+    subtitle?: React.ReactNode;
+    image?: React.ReactNode;
+    actions?: React.ReactNode;
+    onRemove?: () => void | Promise<void>;
+    isRemoving?: boolean;
+    className?: string;
+}
+
+
+export const EntityItem: React.FC<EntityItemProps> = ({
+    href,
+    title,
+    subtitle,
+    image,
+    actions,
+    onRemove,
+    isRemoving = false,
+    className = '',
+}) => {
+    const handleRemove = async (e: React.MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (onRemove && !isRemoving) {
+            await onRemove();
+        }
+    };
+
+    return (
+        <Card className={`group relative px-6 py-3 overflow-hidden transition-all hover:shadow-md ${className}`}>
+            <Link
+                href={href}
+                className="flex items-center gap-4 no-underline text-inherit"
+                onClick={(e) => {
+                    if (isRemoving) e.preventDefault();
+                }}
+            >
+                {/* Image Section */}
+                {image && (
+                    <div className="shrink-0 w-10 h-10 rounded-lg overflow-hidden bg-gray-100 flex items-center justify-center">
+                        {image}
+                    </div>
+                )}
+
+                {/* Content Section */}
+                <div className="flex-1 min-w-0">
+                    <h3 className="font-semibold text-base truncate mb-1">
+                        {title}
+                    </h3>
+                    {subtitle && (
+                        <div className="text-sm text-gray-600 line-clamp-2">
+                            {subtitle}
+                        </div>
+                    )}
+                </div>
+
+                {/* Actions Section */}
+                {actions && (
+                    <div className="shrink-0 flex items-center gap-2">
+                        {actions}
+                    </div>
+                )}
+
+                {/* Remove Button */}
+                {onRemove && (
+                    <div className="shrink-0">
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
+                            onClick={handleRemove}
+                            disabled={isRemoving}
+                            aria-label="Remove"
+                        >
+                            {isRemoving ? (
+                                <Loader2Icon className="h-4 w-4 animate-spin" />
+                            ) : (
+                                <XIcon className="h-4 w-4" />
+                            )}
+                        </Button>
+                    </div>
+                )}
+            </Link>
+
+            {/* Loading Overlay */}
+            {isRemoving && (
+                <div className="absolute inset-0 bg-white/50 backdrop-blur-sm" />
+            )}
+        </Card>
+    );
+};

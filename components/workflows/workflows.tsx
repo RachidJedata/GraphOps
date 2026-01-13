@@ -1,38 +1,28 @@
 "use client"
 
-import { useCreateWorkFlow, useSuspenseWorkFlows } from "@/hooks/workflows/use-workflows";
-import { EntityContainer, EntityHeader, EntityPagination, EntitySearch } from "../entity-components";
-import { useRouter } from "next/navigation";
-import { useUpgradeModal } from "@/lib/use-upgrade-modal";
+import { useHandleCreateWorkflow, useRemoveWorkFlow, useSuspenseWorkFlows } from "@/hooks/workflows/use-workflows";
+import { EmptyView, EntityContainer, EntityHeader, EntityItem, EntityList, EntityPagination, EntitySearch } from "../entity-components";
 import { useWorkFlowParams } from "@/hooks/workflows/use-workflows-params";
 import { useEntitySearch } from "@/hooks/use-entity-search";
+import type { WorkFlow } from "@/lib/generated/prisma/client";
+import { WorkflowIcon } from "lucide-react";
+import { formatDistanceToNow } from 'date-fns';
 
 export default function WorkFlowsList() {
     const { data: workflows } = useSuspenseWorkFlows();
+
     return (
-        <pre>
-            {JSON.stringify(workflows, null, 2)}
-        </pre>
+        <EntityList
+            items={workflows.items}
+            getKey={(wf) => wf.id}
+            emptyView={<EmptyWorkFlow />}
+            renderItem={(workFlow) => <WorkFlowItem workFlow={workFlow} />}
+        />
     );
 }
 
 export const WorkflowsHeader = ({ disabled }: { disabled: boolean }) => {
-    const createWorkFlow = useCreateWorkFlow();
-    const router = useRouter();
-    const { handleError, modal } = useUpgradeModal();
-
-    const handleCreate = () => {
-        createWorkFlow.mutate(undefined, {
-            onSuccess: (data) => {
-                router.push(`/workflows/${data.id}`);
-            },
-            onError: (err) => {
-                console.log(err.message);
-                // upgrade modal
-                handleError(err);
-            }
-        })
-    }
+    const { handleCreate, isLoading, modal } = useHandleCreateWorkflow();
     return (
         <>
             {modal}
@@ -42,7 +32,7 @@ export const WorkflowsHeader = ({ disabled }: { disabled: boolean }) => {
                 onNew={handleCreate}
                 newButtonLabel="New WorkFlow"
                 disabled={disabled}
-                isCreating={createWorkFlow.isPending}
+                isCreating={isLoading}
             />
         </>
     );
@@ -94,4 +84,56 @@ export const WorkflowsPagination = () => {
             totalPages={workflows.data.totalPages}
         />
     );
+}
+
+
+export const EmptyWorkFlow = () => {
+    const { handleCreate, modal } = useHandleCreateWorkflow();
+
+    return <>
+        {modal}
+        <EmptyView
+            entity="workflows"
+            actionLabel="Create workflow"
+            onAction={handleCreate}
+            learnMoreHref="/docs/workflows"
+        />
+    </>
+
+}
+
+const WorkFlowItem = ({ workFlow }: { workFlow: WorkFlow }) => {
+
+    const removeWorkFlow = useRemoveWorkFlow();
+
+    return (
+        <EntityItem
+            key={workFlow.id}
+            href={`/workflows/${workFlow.id}`}
+            title={workFlow.name}
+            subtitle={
+                <>
+                    {workFlow.createdAt.toString() !== workFlow.updatedAt.toString() &&
+                        (
+                            <>
+                                Updated
+                                {formatDistanceToNow(workFlow.updatedAt, { addSuffix: true })}
+                                &bull;
+                            </>
+                        )
+                    }
+                    Created {" "}
+                    {formatDistanceToNow(workFlow.createdAt, { addSuffix: true })} {" "}
+
+                </>
+            }
+            image={
+                <div className="size-8 flex items-center justify-center">
+                    <WorkflowIcon className="size-5 text-muted-foreground rounded-sm" />
+                </div>
+            }
+            onRemove={() => removeWorkFlow.mutate({ id: workFlow.id })}
+            isRemoving={removeWorkFlow.isPending}
+        />
+    )
 }
