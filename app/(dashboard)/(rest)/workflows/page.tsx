@@ -1,10 +1,11 @@
-import WorkFlowsList, { WorkflowsContainer } from "@/components/workflows/workflows";
+import WorkFlowsList, { EmptyWorkFlow, WorkflowsContainer } from "@/components/workflows/workflows";
 import { workFlowsParamsLoader } from "@/lib/workflows/params";
 import { prefetchWorkFlows } from "@/lib/workflows/prefetch";
 import { HydrateClient } from "@/trpc/server";
 import { Suspense } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import type { SearchParams } from 'nuqs/server'
+import { EmptyView, ErrorView, LoadingView } from "@/components/entity-components";
 
 type PageProps = {
     searchParams: Promise<SearchParams>
@@ -16,10 +17,9 @@ export default async function WorkFlow({ searchParams }: PageProps) {
 
     return (
         <WorkflowsContainer>
-            WorkFlow Page
             <HydrateClient>
-                <ErrorBoundary fallback={<p>Error!</p>}>
-                    <Suspense fallback={" loading ..."}>
+                <ErrorBoundary fallback={<ErrorView entity="workflows" />}>
+                    <Suspense fallback={<LoadingView entity="workflows" />}>
                         <WorkFlowsList />
                     </Suspense>
                 </ErrorBoundary>
