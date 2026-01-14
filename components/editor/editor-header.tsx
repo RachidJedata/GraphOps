@@ -34,7 +34,8 @@ export function EditorHeader({ workFlowId }: { workFlowId: string }) {
 
             {/* Breadcrumbs */}
             <EditBreadCrumbs
-                workflow={workflow}
+                workflowName={workflow.name}
+                workFlowId={workflow.id}
             />
 
             {/* Spacer */}
@@ -47,9 +48,9 @@ export function EditorHeader({ workFlowId }: { workFlowId: string }) {
 }
 
 
-function EditBreadCrumbs({ workflow }: { workflow: WorkFlow }) {
+function EditBreadCrumbs({ workflowName, workFlowId }: { workflowName: string; workFlowId: string; }) {
     const [editing, setEditing] = useState(false);
-    const [value, setValue] = useState(workflow.name);
+    const [value, setValue] = useState(workflowName);
 
     const updateWorkflowName = useUpdateNameWorkFlow();
 
@@ -64,19 +65,19 @@ function EditBreadCrumbs({ workflow }: { workflow: WorkFlow }) {
 
     const save = async () => {
         if (!value.trim()) {
-            setValue(workflow.name);
+            setValue(workflowName);
         } else {
             try {
-                updateWorkflowName.mutateAsync({ id: workflow.id, name: value })
+                updateWorkflowName.mutateAsync({ id: workFlowId, name: value })
             } catch (error) {
-                setValue(workflow.name);
+                setValue(workflowName);
             }
         }
         setEditing(false);
     };
 
     const cancel = () => {
-        setValue(workflow.name);
+        setValue(workflowName);
         setEditing(false);
     };
 
@@ -109,7 +110,7 @@ function EditBreadCrumbs({ workflow }: { workflow: WorkFlow }) {
                             onClick={() => setEditing(true)}
                             className="cursor-pointer truncate max-w-55 text-sm font-medium hover:text-foreground transition-colors"
                         >
-                            {workflow.name}
+                            {workflowName}
                         </span>
                     )}
                 </BreadcrumbItem>

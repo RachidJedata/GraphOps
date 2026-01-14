@@ -24,7 +24,6 @@ model User {
   sessions      Session[]
   accounts      Account[]
   workFlows     WorkFlow[]
-  
 
   @@unique([email])
   @@map("user")
@@ -79,10 +78,54 @@ model Verification {
 }
 
 model WorkFlow {
-  id        String   @id @default(uuid())
-  name      String
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id          String       @id @default(uuid())
+  name        String
+  userId      String
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  nodes       Node[]
+  connections Connection[]
+}
+
+enum NodeType {
+  INITIAL
+}
+
+model Node {
+  id       String   @id @default(uuid())
+  name     String
+  type     NodeType
+  position Json
+  data     Json     @default("{}")
+
+  workFlowId String
+  workFlow   WorkFlow @relation(fields: [workFlowId], references: [id], onDelete: Cascade)
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  outputConnections Connection[] @relation("ToNode")
+  inputConnections  Connection[] @relation("FromNode")
+}
+
+model Connection {
+  id String @id @default(uuid())
+
+  workFlowId String
+  workFlow   WorkFlow @relation(fields: [workFlowId], references: [id], onDelete: Cascade)
+
+  fromNodeId String
+  fromNode   Node   @relation("FromNode", fields: [fromNodeId], references: [id], onDelete: Cascade)
+
+  toNodeId String
+  toNode   Node   @relation("ToNode", fields: [toNodeId], references: [id], onDelete: Cascade)
+
+  fromOutput String @default("main")
+  toInput    String @default("main")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([fromNodeId, toNodeId, fromOutput, toInput])
 }
