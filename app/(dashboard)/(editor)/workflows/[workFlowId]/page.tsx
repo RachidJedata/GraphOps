@@ -11,17 +11,15 @@ export default async function WorkFlow({ params }: { params: Promise<{ workFlowI
     prefetchWorkFlow(workFlowId);
 
     return (
-        <>
-            <HydrateClient>
-                <ErrorBoundary fallback={<ErrorView entity="editor" message="WorkFlow isn't found please try again!" />}>
-                    <Suspense fallback={<LoadingView entity="editor" />}>
-                        <EditorHeader workFlowId={workFlowId} />
-                        <main className="flex-1">
-                            <Editor workFlowId={workFlowId} />
-                        </main>
-                    </Suspense>
-                </ErrorBoundary>
-            </HydrateClient>
-        </>
+        <HydrateClient>
+            <ErrorBoundary fallback={<ErrorView entity="editor" message="WorkFlow isn't found please try again!" />}>
+                <Suspense fallback={<LoadingView entity="editor" />}>
+                    <EditorHeader workFlowId={workFlowId} />
+                    <main className="flex-1">
+                        <Editor workFlowId={workFlowId} />
+                    </main>
+                </Suspense>
+            </ErrorBoundary>
+        </HydrateClient>
     );
 }

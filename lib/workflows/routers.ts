@@ -3,6 +3,8 @@ import prisma from '@/lib/db';
 import { createTRPCRouter, protectedProcedure } from '@/trpc/init';
 import z from 'zod';
 import { PAGINATION } from '../constants';
+import { NodeType } from '../generated/prisma/enums';
+import { Node as NodeFlow, Edge as flowEdge } from '@xyflow/react';
 
 export const workFlowRouters = createTRPCRouter({
     create: protectedProcedure
@@ -12,7 +14,14 @@ export const workFlowRouters = createTRPCRouter({
             return prisma.workFlow.create({
                 data: {
                     name: generateSlug(2),
-                    userId: ctx.auth.user.id
+                    userId: ctx.auth.user.id,
+                    nodes: {
+                        create: {
+                            name: NodeType.INITIAL,
+                            position: { x: 0, y: 0 },
+                            type: NodeType.INITIAL,
+                        }
+                    }
                 }
             })
         }),
@@ -52,15 +61,43 @@ export const workFlowRouters = createTRPCRouter({
         .input(z.object({
             id: z.string().min(1, "WorkFlow Id is required"),
         }))
-        .query((
+        .query(async (
             { input, ctx }
         ) => {
-            return prisma.workFlow.findUniqueOrThrow({
+            const workFlow = await prisma.workFlow.findUniqueOrThrow({
                 where: {
                     id: input.id,
                     userId: ctx.auth.user.id,
+                },
+                include: {
+                    nodes: true,
+                    connections: true,
                 }
             });
+
+            // transform nodes and connections to be compatible with react-flow
+            const nodes: NodeFlow[] = workFlow.nodes.map(node => ({
+                id: node.id,
+                position: node.position as { x: number, y: number },
+                data: node.data as Record<string, unknown> || {},
+                type: node.type,
+            }));
+
+            const edges: flowEdge[] = workFlow.connections.map(connection => ({
+                id: connection.id,
+                source: connection.fromNodeId,
+                sourceHandle: connection.fromOutput,
+
+                target: connection.toNodeId,
+                targetHandle: connection.toInput,
+            }));
+
+            return {
+                id: workFlow.id,
+                name: workFlow.name,
+                nodes,
+                edges
+            };
         }),
     getMany: protectedProcedure
         .input(z.object({
