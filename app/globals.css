@@ -3,10 +3,10 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/* @theme {
-  --color-primary-500: #1354ea;
-  --color-on-primary: #ffffff;
-} */
+ @theme {
+  --color-primary-500: #dceefe;
+  /* --color-on-primary: #ffffff; */
+} 
 
 :root {
   --background: oklch(0.9842 0.0034 247.8575);
