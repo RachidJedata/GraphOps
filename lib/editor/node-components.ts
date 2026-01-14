@@ -1,9 +1,13 @@
-import type { NodeTypes } from "@xyflow/react";
+import { ManualTriggerNode } from "@/components/editor/nodes/triggers/manual-trigger-node";
 import { NodeType } from "../generated/prisma/enums";
-import InitialNode from "@/components/editor/initial-node";
+import InitialNode from "@/components/editor/nodes/base-nodes/initial-node";
+import { HttpRequestNode } from "@/components/editor/nodes/executions/http-request-node";
 
 export const nodeComponents = {
     [NodeType.INITIAL]: InitialNode,
+    [NodeType.MANUAL_TRIGGER]: ManualTriggerNode,
+    [NodeType.HTTP_REQUEST]: HttpRequestNode,
+
 };
 // } as const satisfies NodeTypes;
 

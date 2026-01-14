@@ -1,0 +1,74 @@
+
+
+import { LucideIcon } from "lucide-react";
+import { WorkFlowNode } from "../../workflow-node";
+import { memo } from "react";
+import { BaseNode, BaseNodeContent } from "@/components/react-flow/base-node";
+import Image from "next/image";
+import { BaseHandle } from "@/components/react-flow/base-handle";
+import { Position } from "@xyflow/react";
+
+
+interface BaseExecutionNodeProps {
+    icon: LucideIcon | string;
+    name: string;
+    description?: string;
+    children?: React.ReactNode;
+    // status?: NodeStatus;
+    onSettingsClick?: () => void;
+    onDoubleClick?: () => void;
+
+}
+
+export const BaseExecutionNode = memo(({
+    icon: Icon,
+    name,
+    description,
+    onSettingsClick,
+    onDoubleClick,
+    children,
+}: BaseExecutionNodeProps) => {
+
+    const handleDelete = () => {
+
+    }
+    return (
+        <WorkFlowNode
+            description={description}
+            name={name}
+            onSettings={onSettingsClick}
+            onDelete={handleDelete}
+        >
+            <BaseNode onDoubleClick={onDoubleClick}>
+                <BaseNodeContent>
+                    {typeof Icon !== 'string' ? (
+                        <Icon className="size-4 shrink-0 text-primary" />
+                    ) : (
+                        <Image
+                            src={Icon}
+                            alt={name}
+                            className="object-contain shrink-0 text-primary"
+                            width={16}
+                            height={16}
+                        />
+
+                    )}
+                    {children}
+
+                    <BaseHandle
+                        id="target-1"
+                        type="target"
+                        position={Position.Left}
+                    />
+                    <BaseHandle
+                        id="source-1"
+                        type="source"
+                        position={Position.Right}
+                    />
+                </BaseNodeContent>
+            </BaseNode>
+        </WorkFlowNode>
+    );
+});
+
+BaseExecutionNode.displayName = 'BaseExecutionNode';
