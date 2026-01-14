@@ -68,7 +68,7 @@ function EditBreadCrumbs({ workflowName, workFlowId }: { workflowName: string; w
             setValue(workflowName);
         } else {
             try {
-                updateWorkflowName.mutateAsync({ id: workFlowId, name: value })
+                await updateWorkflowName.mutateAsync({ id: workFlowId, name: value })
             } catch (error) {
                 setValue(workflowName);
             }
