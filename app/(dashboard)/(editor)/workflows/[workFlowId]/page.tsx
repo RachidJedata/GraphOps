@@ -12,7 +12,7 @@ export default async function WorkFlow({ params }: { params: Promise<{ workFlowI
 
     return (
         <HydrateClient>
-            <ErrorBoundary fallback={<ErrorView entity="editor" message="WorkFlow isn't found please try again!" />}>
+            <ErrorBoundary fallback={<ErrorView entity="editor" message="Workflow not found. Please try again." />}>
                 <Suspense fallback={<LoadingView entity="editor" />}>
                     <EditorHeader workFlowId={workFlowId} />
                     <main className="flex-1">
