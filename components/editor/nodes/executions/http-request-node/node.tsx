@@ -26,7 +26,7 @@ export const HttpRequestNode = memo((props: NodeProps<HttpRequestNodeProps>) => 
 
     const { setNodes } = useReactFlow();
     const handleSubmit = (values: HttpRequestData) => {
-        console.log("HTTP Request Node values:", values);
+        // console.log("HTTP Request Node values:", values);
         setNodes((nds) => {
             return nds.map((node) => {
                 if (node.id === props.id) {

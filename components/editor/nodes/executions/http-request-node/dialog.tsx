@@ -108,12 +108,12 @@ export default function HttpRequestNodeDialog({
                                     <FormLabel>Endpoint URL</FormLabel>
                                     <FormControl>
                                         <Input
-                                            placeholder="https://api.example.com/users/{{httResponse.data.id}}"
+                                            placeholder="https://api.example.com/users/{{httpResponse.data.id}}"
                                             {...field}
                                         />
                                     </FormControl>
                                     <FormDescription className="text-xs">
-                                        Statis url or use {"{{variable}}"} syntax to reference data from previous nodes.
+                                        Static url or use {"{{variable}}"} syntax to reference data from previous nodes.
                                     </FormDescription>
                                     <FormMessage />
                                 </FormItem>
@@ -163,7 +163,7 @@ export default function HttpRequestNodeDialog({
                                         <FormLabel>Request Body (Optional)</FormLabel>
                                         <FormControl>
                                             <Textarea
-                                                placeholder={'{\n "items": "{{httpResponse.data.items}}" \n "name": "{{httpResponse.data.name}}" \n}'}
+                                                placeholder={'{\n "items": "{{httpResponse.data.items}}," \n "name": "{{httpResponse.data.name}}" \n}'}
                                                 className="min-h-25 font-mono text-sm"
                                                 {...field}
                                             />

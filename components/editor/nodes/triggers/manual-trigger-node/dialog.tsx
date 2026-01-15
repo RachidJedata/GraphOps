@@ -32,7 +32,6 @@ export default function ManualTriggerNodeDialog({
 
                 <div className="py-2 text-muted-foreground text-xs">
                     Used to manually trigger the workflow from the dashboard.
-
                 </div>
 
                 <DialogFooter className="gap-2">

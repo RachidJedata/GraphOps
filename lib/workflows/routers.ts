@@ -125,7 +125,7 @@ export const workFlowRouters = createTRPCRouter({
                 });
 
                 //update workflow's updatedAt for better experience in listing
-                await tx.workFlow.update({
+                return await tx.workFlow.update({
                     where: {
                         id: workflow.id,
                     },
@@ -133,8 +133,6 @@ export const workFlowRouters = createTRPCRouter({
                         updatedAt: new Date(),
                     }
                 });
-
-                return workflow;
             });
         }),
     getOne: protectedProcedure

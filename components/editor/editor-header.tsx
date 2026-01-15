@@ -17,6 +17,7 @@ import { useEffect, useRef, useState } from "react";
 import { Input } from "../ui/input";
 import { useAtomValue } from "jotai";
 import { editorAtome } from "@/lib/atoms";
+import { toast } from "sonner";
 
 export function EditorHeader({ workFlowId }: { workFlowId: string }) {
     const { data: workflow } = useSuspenseGetOneWorkFlow(workFlowId);
@@ -129,7 +130,10 @@ function EditSaveButton({ workflowId }: {
     const updateWorkFlowMutation = useUpdateWorkFlow();
 
     const saveWorkFlow = async () => {
-        if (!editor) return;
+        if (!editor) {
+            toast.error("Editor not initialized");
+            return;
+        }
 
         const flow = editor.toObject();
         await updateWorkFlowMutation.mutateAsync({
