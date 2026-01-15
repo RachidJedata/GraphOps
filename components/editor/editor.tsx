@@ -7,6 +7,8 @@ import { ReactFlow, applyNodeChanges, applyEdgeChanges, addEdge, type Node, type
 import '@xyflow/react/dist/style.css';
 import { nodeComponents } from "@/lib/editor/node-components";
 import { AddNodeButton } from "./add-node";
+import { useSetAtom } from "jotai";
+import { editorAtome } from "@/lib/atoms";
 
 
 
@@ -15,6 +17,10 @@ export function Editor({ workFlowId }: { workFlowId: string }) {
 
     const [nodes, setNodes] = useState<Node[]>(workFlow.nodes);
     const [edges, setEdges] = useState<Edge[]>(workFlow.edges);
+
+    const setEditor = useSetAtom(editorAtome);
+
+
 
     const onNodesChange = useCallback(
         (changes: NodeChange[]) => setNodes((nodesSnapshot) => applyNodeChanges(changes, nodesSnapshot)),
@@ -39,6 +45,13 @@ export function Editor({ workFlowId }: { workFlowId: string }) {
                 onConnect={onConnect}
                 fitView
                 nodeTypes={nodeComponents}
+                onInit={setEditor}
+                deleteKeyCode={["Delete", "Backspace"]}
+                snapGrid={[10,10]}
+                snapToGrid
+                panOnScroll
+                // panOnDrag={false}
+                // selectionOnDrag
             // proOptions={{
             //     hideAttribution: true,
             // }}

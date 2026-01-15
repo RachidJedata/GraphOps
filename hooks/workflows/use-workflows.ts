@@ -45,7 +45,22 @@ export function useUpdateNameWorkFlow() {
             queryClient.invalidateQueries(trpc.workflows.getOne.queryOptions({ id: data.id }));
         },
         onError: (error) => {
-            toast.error(`Failed to create a workFlow: ${error.message}`);
+            toast.error(`Failed to update workFlow Name: ${error.message}`);
+        }
+    }));
+}
+
+export function useUpdateWorkFlow() {
+    const queryClient = useQueryClient();
+    const trpc = useTRPC();
+
+    return useMutation(trpc.workflows.update.mutationOptions({
+        onSuccess: (data) => {
+            toast.success(`The WorkFlow is ${data.name} saved successfully`);
+            queryClient.invalidateQueries(trpc.workflows.getOne.queryOptions({ id: data.id }));
+        },
+        onError: (error) => {
+            toast.error(`Failed to update a workFlow: ${error.message}`);
         }
     }));
 }

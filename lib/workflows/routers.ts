@@ -57,6 +57,86 @@ export const workFlowRouters = createTRPCRouter({
                 }
             })
         }),
+    update: protectedProcedure
+        .input(z.object({
+            id: z.string().min(1, "WorkFlow Id is required"),
+            nodes: z.array(z.object({
+                id: z.string(),
+                type: z.string().nullish(),
+                position: z.object({
+                    x: z.number(),
+                    y: z.number(),
+                }),
+                data: z.record(z.string(), z.any()).optional(),
+            })),
+            edges: z.array(z.object({
+                id: z.string(),
+                source: z.string(),
+                sourceHandle: z.string().nullish(),
+
+                target: z.string(),
+                targetHandle: z.string().nullish(),
+            })),
+        }))
+        .mutation(async (
+            { ctx, input }
+        ) => {
+            const { id, edges, nodes } = input;
+            const workflow = await prisma.workFlow.findFirstOrThrow({
+                where: {
+                    id: id,
+                    userId: ctx.auth.user.id,
+                }
+            });
+
+            // use transcation to ensure data integrity
+            return await prisma.$transaction(async (tx) => {
+
+                // delete existing nodes 
+                // connections will be deleted automatically due to cascade delete
+                await tx.node.deleteMany({
+                    where: {
+                        workFlowId: workflow.id,
+                    }
+                });
+                //Create new nodes
+                await tx.node.createMany({
+                    data: nodes.map(node => ({
+                        id: node.id,
+                        name: node.type || NodeType.INITIAL,
+                        type: node.type as NodeType || NodeType.INITIAL,
+                        position: node.position,
+                        data: node.data || {},
+                        workFlowId: workflow.id,
+                    })),
+                });
+
+                //create new connections
+                await tx.connection.createMany({
+                    data: edges.map(edge => ({
+                        id: edge.id,
+                        fromNodeId: edge.source,
+                        fromOutput: edge.sourceHandle || "main",
+
+                        toNodeId: edge.target,
+                        toInput: edge.targetHandle || "main",
+                        workFlowId: workflow.id,
+                    })),
+                });
+
+                //update workflow's updatedAt for better experience in listing
+                await tx.workFlow.update({
+                    where: {
+                        id: workflow.id,
+                    },
+                    data: {
+                        updatedAt: new Date(),
+                    }
+                });
+
+                return workflow;
+            });
+        }),
     getOne: protectedProcedure
         .input(z.object({
             id: z.string().min(1, "WorkFlow Id is required"),
