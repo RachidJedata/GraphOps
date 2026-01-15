@@ -6,31 +6,38 @@ import { memo } from "react";
 import { BaseNode, BaseNodeContent } from "@/components/react-flow/base-node";
 import Image from "next/image";
 import { BaseHandle } from "@/components/react-flow/base-handle";
-import { Position } from "@xyflow/react";
+import { Position, useReactFlow } from "@xyflow/react";
+import { NodeStatus, NodeStatusIndicator } from "@/components/react-flow/node-status-indicator";
 
 
 interface BaseExecutionNodeProps {
+    id: string;
     icon: LucideIcon | string;
     name: string;
     description?: string;
     children?: React.ReactNode;
-    // status?: NodeStatus;
+    status?: NodeStatus;
     onSettingsClick?: () => void;
     onDoubleClick?: () => void;
 
 }
 
 export const BaseExecutionNode = memo(({
+    id,
     icon: Icon,
     name,
     description,
     onSettingsClick,
     onDoubleClick,
     children,
+    status = 'initial',
 }: BaseExecutionNodeProps) => {
 
-    const handleDelete = () => {
+    const { setNodes, setEdges } = useReactFlow();
 
+    const handleDelete = () => {
+        setNodes((nds) => nds.filter((n) => n.id !== id));
+        setEdges((eds) => eds.filter((e) => e.source !== id && e.target !== id));
     }
     return (
         <WorkFlowNode
@@ -39,34 +46,42 @@ export const BaseExecutionNode = memo(({
             onSettings={onSettingsClick}
             onDelete={handleDelete}
         >
-            <BaseNode onDoubleClick={onDoubleClick}>
-                <BaseNodeContent>
-                    {typeof Icon !== 'string' ? (
-                        <Icon className="size-4 shrink-0 text-primary" />
-                    ) : (
-                        <Image
-                            src={Icon}
-                            alt={name}
-                            className="object-contain shrink-0 text-primary"
-                            width={16}
-                            height={16}
+            <NodeStatusIndicator
+                variant="border"
+                className="rounded-md"
+                status={status}
+            >
+                <BaseNode
+                    status={status}
+                    onDoubleClick={onDoubleClick}>
+                    <BaseNodeContent>
+                        {typeof Icon !== 'string' ? (
+                            <Icon className="size-4 shrink-0 text-primary" />
+                        ) : (
+                            <Image
+                                src={Icon}
+                                alt={name}
+                                className="object-contain shrink-0 text-primary"
+                                width={16}
+                                height={16}
+                            />
+
+                        )}
+                        {children}
+
+                        <BaseHandle
+                            id="target-1"
+                            type="target"
+                            position={Position.Left}
                         />
-
-                    )}
-                    {children}
-
-                    <BaseHandle
-                        id="target-1"
-                        type="target"
-                        position={Position.Left}
-                    />
-                    <BaseHandle
-                        id="source-1"
-                        type="source"
-                        position={Position.Right}
-                    />
-                </BaseNodeContent>
-            </BaseNode>
+                        <BaseHandle
+                            id="source-1"
+                            type="source"
+                            position={Position.Right}
+                        />
+                    </BaseNodeContent>
+                </BaseNode>
+            </NodeStatusIndicator>
         </WorkFlowNode>
     );
 });

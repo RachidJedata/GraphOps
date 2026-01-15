@@ -2,21 +2,22 @@
 
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Separator } from "@/components/ui/separator";
-import { useSuspenseGetOneWorkFlow, useUpdateNameWorkFlow } from "@/hooks/workflows/use-workflows";
+import { useSuspenseGetOneWorkFlow, useUpdateNameWorkFlow, useUpdateWorkFlow } from "@/hooks/workflows/use-workflows";
 import {
     Breadcrumb,
     BreadcrumbItem,
     BreadcrumbLink,
     BreadcrumbList,
-    BreadcrumbPage,
     BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import Link from "next/link";
 import { CheckIcon, Loader2Icon, SaveIcon } from "lucide-react";
 import { Button } from "../ui/button";
 import { useEffect, useRef, useState } from "react";
-import type { WorkFlow } from "@/lib/generated/prisma/client";
 import { Input } from "../ui/input";
+import { useAtomValue } from "jotai";
+import { editorAtome } from "@/lib/atoms";
+import { toast } from "sonner";
 
 export function EditorHeader({ workFlowId }: { workFlowId: string }) {
     const { data: workflow } = useSuspenseGetOneWorkFlow(workFlowId);
@@ -125,14 +126,30 @@ function EditSaveButton({ workflowId }: {
     const [isSaving, setIsSaving] = useState(false);
     const [saved, setSaved] = useState(false);
 
-    const updateNameMutation = useUpdateNameWorkFlow();
+    const editor = useAtomValue(editorAtome);
+    const updateWorkFlowMutation = useUpdateWorkFlow();
+
+    const saveWorkFlow = async () => {
+        if (!editor) {
+            toast.error("Editor not initialized");
+            return;
+        }
+
+        const flow = editor.toObject();
+        await updateWorkFlowMutation.mutateAsync({
+            id: workflowId,
+            nodes: flow.nodes,
+            edges: flow.edges,
+        });
+    }
 
     const handleSave = async () => {
         try {
             setIsSaving(true);
             setSaved(false);
 
-            // TODO: save here 
+            // TODO: save here the workflow content
+            await saveWorkFlow();
 
             setSaved(true);
             setTimeout(() => setSaved(false), 2000);
