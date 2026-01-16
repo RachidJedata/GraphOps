@@ -35,6 +35,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { useEffect } from "react";
 
 const formSchema = z.object({
+    variableName: z.string()
+        .min(1, "Variable name is required")
+        .regex(/^[a-zA-Z_$][a-zA-Z0-9_$]*$/, "Invalid variable name"),
     endpoint: z.url("Please enter a valid URL"),
     method: z.enum(["GET", "POST", "PUT", "DELETE", "PATCH"]),
     body: z.string().optional(),
@@ -58,14 +61,20 @@ export default function HttpRequestNodeDialog({
 
     const form = useForm<HttpRequestFormValues>({
         resolver: zodResolver(formSchema),
-        defaultValues: nodeData,
+        defaultValues: {
+            ...nodeData,
+            method: nodeData.method || "GET",
+        },
     });
 
     const formWatch = form.watch("method");
 
 
     useEffect(() => {
-        form.reset(nodeData);
+        form.reset({
+            ...nodeData,
+            method: nodeData.method || "GET"
+        });
     }, [nodeData, form]);
 
     const handleSubmit = (values: HttpRequestFormValues) => {
@@ -92,6 +101,26 @@ export default function HttpRequestNodeDialog({
                     >
                         <FormField
                             control={form.control}
+                            name="variableName"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Variable Name</FormLabel>
+                                    <FormControl>
+                                        <Input
+                                            // value={field.value}
+                                            {...field}
+                                        />
+                                    </FormControl>
+                                    <FormDescription className="text-xs">
+                                        use this name to reference the result in other nodes: {" "}
+                                        {`{{${(field.value || "httpResponse")}.data}}`}
+                                    </FormDescription>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
                             name="endpoint"
                             render={({ field }) => (
                                 <FormItem>
@@ -99,7 +128,8 @@ export default function HttpRequestNodeDialog({
                                     <FormControl>
                                         <Input
                                             placeholder="https://api.example.com/users/{{httpResponse.data.id}}"
-                                            defaultValue={field.value}
+                                            // value={field.value}
+                                            autoFocus
                                             {...field}
                                         />
                                     </FormControl>
@@ -110,7 +140,6 @@ export default function HttpRequestNodeDialog({
                                 </FormItem>
                             )}
                         />
-
                         <FormField
                             control={form.control}
                             name="method"

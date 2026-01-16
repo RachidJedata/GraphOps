@@ -3,8 +3,9 @@
 import { GlobeIcon } from "lucide-react";
 import { BaseExecutionNode } from "../../base-nodes/base-execution-node";
 import { Node, NodeProps, useReactFlow } from "@xyflow/react";
-import { memo, useState } from "react";
+import { memo, useEffect, useState } from "react";
 import HttpRequestNodeDialog, { HttpRequestFormValues } from "./dialog";
+import { NodeType } from "@/lib/generated/prisma/enums";
 
 type HttpRequestNodeProps = Node<HttpRequestFormValues>;
 
@@ -14,7 +15,7 @@ export const HttpRequestNode = memo((props: NodeProps<HttpRequestNodeProps>) => 
         setShowDialog(true);
     }
 
-    const { setNodes } = useReactFlow();
+    const { setNodes, getNodes } = useReactFlow();
     const handleSubmit = (values: HttpRequestFormValues) => {
         // console.log("HTTP Request Node values:", values);
         setNodes((nds) => {
@@ -35,8 +36,18 @@ export const HttpRequestNode = memo((props: NodeProps<HttpRequestNodeProps>) => 
     const nodeData = props.data;
 
     const description = nodeData?.endpoint
-        ? `${nodeData.method || 'GET'}: ${nodeData.endpoint}`
+        ? `{${nodeData.variableName ?? ""}}: ${nodeData.method}: ${nodeData.endpoint}`
         : 'Not configured';
+
+    useEffect(() => {
+        if (nodeData.variableName) return;
+
+        const lastNode = getNodes().filter(node => node.type === NodeType.HTTP_REQUEST).length
+
+        nodeData.variableName = `httpResponse${lastNode}`;
+
+    }, [nodeData.endpoint]);
+
     return (
         <>
             <HttpRequestNodeDialog
