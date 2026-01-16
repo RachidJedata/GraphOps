@@ -5,8 +5,21 @@ import z from 'zod';
 import { PAGINATION } from '../constants';
 import { NodeType } from '../generated/prisma/enums';
 import { Node as NodeFlow, Edge as flowEdge } from '@xyflow/react';
+import { inngest } from '@/inngest/client';
 
 export const workFlowRouters = createTRPCRouter({
+    execute: protectedProcedure
+        .input(z.object({
+            id: z.string().min(1, "WorkFlow Id is required"),
+        }))
+        .mutation(async ({ ctx, input }) => {
+            await inngest.send({
+                name: "workflows/execute",
+                data: {
+                    workflowId: input.id,
+                },
+            });
+        }),
     create: protectedProcedure
         .mutation((
             { ctx }

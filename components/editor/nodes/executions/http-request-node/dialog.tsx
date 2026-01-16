@@ -40,45 +40,35 @@ const formSchema = z.object({
     body: z.string().optional(),
 });
 
+export type HttpRequestFormValues = z.infer<typeof formSchema>;
+
 interface HttpRequestNodeDialogProps {
     setShowDialog: (show: boolean) => void;
     open: boolean;
-    defaultEndpoint?: string;
-    defaultMethod: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
-    defaultBody?: string;
-    onSubmit: (values: z.infer<typeof formSchema>) => void;
+    nodeData: HttpRequestFormValues;
+    onSubmit: (values: HttpRequestFormValues) => void;
 }
 
 export default function HttpRequestNodeDialog({
     setShowDialog,
     open,
-    defaultEndpoint = "",
-    defaultMethod = "GET",
-    defaultBody = "",
+    nodeData,
     onSubmit,
 }: HttpRequestNodeDialogProps) {
 
-    const form = useForm<z.infer<typeof formSchema>>({
+    const form = useForm<HttpRequestFormValues>({
         resolver: zodResolver(formSchema),
-        defaultValues: {
-            endpoint: defaultEndpoint,
-            method: defaultMethod,
-            body: defaultBody,
-        },
+        defaultValues: nodeData,
     });
 
     const formWatch = form.watch("method");
 
 
     useEffect(() => {
-        form.reset({
-            endpoint: defaultEndpoint,
-            method: defaultMethod,
-            body: defaultBody,
-        });
-    }, [defaultEndpoint, defaultMethod, defaultBody, form]);
+        form.reset(nodeData);
+    }, [nodeData, form]);
 
-    const handleSubmit = (values: z.infer<typeof formSchema>) => {
+    const handleSubmit = (values: HttpRequestFormValues) => {
         onSubmit(values);
         setShowDialog(false);
     };
@@ -109,6 +99,7 @@ export default function HttpRequestNodeDialog({
                                     <FormControl>
                                         <Input
                                             placeholder="https://api.example.com/users/{{httpResponse.data.id}}"
+                                            defaultValue={field.value}
                                             {...field}
                                         />
                                     </FormControl>
@@ -128,7 +119,7 @@ export default function HttpRequestNodeDialog({
                                     <FormLabel>HTTP Method</FormLabel>
                                     <Select
                                         onValueChange={field.onChange}
-                                        defaultValue={field.value}
+                                        value={field.value}
                                     >
                                         <FormControl className="w-full">
                                             <SelectTrigger>
