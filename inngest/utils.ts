@@ -1,4 +1,5 @@
 import { Connection, Node } from "@/lib/generated/prisma/client";
+import { NonRetriableError } from "inngest";
 import toposort from "toposort";
 
 export const topologicalSort = (
@@ -39,7 +40,7 @@ export const topologicalSort = (
         sortedNodeIds = Array.from(new Set(sortedNodeIds));
     } catch (error) {
         if (error instanceof Error && error.message.includes("Cyclic dependency")) {
-            throw new Error(`Cyclic dependency detected in workflow nodes.`);
+            throw new NonRetriableError(`Cyclic dependency detected in workflow nodes.`);
         }
         throw error;
     }
