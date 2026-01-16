@@ -107,3 +107,17 @@ export function useRemoveWorkFlow() {
     }));
 }
 
+
+
+export function useExecuteWorkFlow() {
+    const trpc = useTRPC();
+
+    return useMutation(trpc.workflows.execute.mutationOptions({
+        onSuccess: () => {
+            toast.success(`the WorkFlow is executed successfully `);
+        },
+        onError: (error) => {
+            toast.error(`Failed to execute workFlow Name: ${error.message}`);
+        }
+    }));
+}
