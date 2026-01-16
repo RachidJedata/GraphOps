@@ -1,15 +1,17 @@
 import { NodeExecutor } from "@/types/executions/types";
 import { NonRetriableError } from "inngest";
 import ky, { type Options as kyOptions } from 'ky';
+import HandleBars from 'handlebars';
+import { HttpRequestFormValues } from "@/components/editor/nodes/executions/http-request-node/dialog";
 
-type HttpRequestData = {
-    variableName?: string;
-    endpoint?: string;
-    method?: "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
-    body?: string | undefined;
-};
 
-export const httpRequestExecutor: NodeExecutor<HttpRequestData> = async ({
+HandleBars.registerHelper('json', (aString) => {
+    const jsonString = JSON.stringify(aString, null, 2);
+    const safeString = new HandleBars.SafeString(jsonString);
+    return safeString;
+});
+
+export const httpRequestExecutor: NodeExecutor<HttpRequestFormValues> = async ({
     nodeId,
     data,
     context,
@@ -29,14 +31,21 @@ export const httpRequestExecutor: NodeExecutor<HttpRequestData> = async ({
 
         const options: kyOptions = { method: method ?? "GET" };
 
-        if (["POST", "PUT", "PATCH"].includes(method ?? "GET") && body) {
-            options.body = body;
+        if (["POST", "PUT", "PATCH"].includes(method ?? "GET")) {
+
+            const resolved = HandleBars.compile(body || "{}")(context);
+            console.log("Body : ", resolved);
+            //did that just to ensure it is a valid json
+            JSON.parse(resolved);
+
+            options.body = resolved;
             options.headers = {
                 "Content-Type": "application/json",
             }
         }
+        const compiledEndpoint = HandleBars.compile(endpoint)(context);
 
-        const response = await ky(endpoint, options);
+        const response = await ky(compiledEndpoint, options);
 
         const isJson = response.headers.get("content-type")?.includes("application/json");
 
