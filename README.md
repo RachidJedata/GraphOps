@@ -7,7 +7,9 @@ First, run the development server:
 
 ```bash
 npm run dev
-npx --ignore-scripts=false inngest-cli@latest dev
+npx inngest-cli@latest dev
+ngrok http 3000
+
 # or
 yarn dev
 # or

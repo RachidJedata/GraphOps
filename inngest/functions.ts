@@ -40,7 +40,7 @@ export const executeWorkFlow = inngest.createFunction(
     { id: "execute-workflow" },
     { event: "workflows/execute" },
     async ({ event, step, publish }) => {
-        const { workflowId } = event.data;
+        const { workflowId, initialData } = event.data;
 
         if (!workflowId) throw new NonRetriableError("Workflow ID is required");
 
@@ -59,7 +59,7 @@ export const executeWorkFlow = inngest.createFunction(
 
 
         //Initialize context to pass between nodes
-        let context = event.data.initialData || {};
+        let context = initialData || {};
 
         // Execute each node in topological order
         for (const node of sortedNodes) {
