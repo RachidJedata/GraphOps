@@ -76,6 +76,7 @@
     "react-dom": "19.2.3",
     "react-error-boundary": "^6.0.3",
     "react-hook-form": "^7.70.0",
+    "react-json-view-lite": "^2.5.0",
     "react-resizable-panels": "^4.3.3",
     "recharts": "^2.15.4",
     "server-only": "^0.0.1",

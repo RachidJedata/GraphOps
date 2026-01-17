@@ -7,8 +7,9 @@ import { memo, useEffect, useState } from "react";
 import HttpRequestNodeDialog, { HttpRequestFormValues } from "./dialog";
 import { NodeType } from "@/lib/generated/prisma/enums";
 import { useNodeStatus } from "@/hooks/nodes/use-node-status";
-import { fetchHttpRequestRealtimeToken } from "@/lib/nodes/triggers/http-request/get-subscribe-token";
-import { HTTP_REQUEST_CHANNEL_NAME } from "@/inngest/channels/http-request";
+import { HTTP_REQUEST_CONTEXT_CHANNEL_NAME, HTTP_REQUEST_STATUS_CHANNEL_NAME } from "@/inngest/channels/http-request";
+import { fetchHttpRequestContextRealtimeToken, fetchHttpRequestStatusRealtimeToken } from "@/lib/nodes/triggers/http-request/get-subscribe-token";
+import { useNodeContext } from "@/hooks/nodes/use-node-context";
 
 type HttpRequestNodeProps = Node<HttpRequestFormValues>;
 
@@ -52,15 +53,31 @@ export const HttpRequestNode = memo((props: NodeProps<HttpRequestNodeProps>) => 
     }, [nodeData.endpoint]);
 
     const nodeStatus = useNodeStatus({
-        channel: HTTP_REQUEST_CHANNEL_NAME,
+        channel: HTTP_REQUEST_STATUS_CHANNEL_NAME,
         nodeId: props.id,
         topic: "status",
-        refreshToken: fetchHttpRequestRealtimeToken,
+        refreshToken: fetchHttpRequestStatusRealtimeToken,
+    });
+    const inputData = useNodeContext({
+        channel: HTTP_REQUEST_CONTEXT_CHANNEL_NAME,
+        dataType: "inputData",
+        nodeId: props.id,
+        topic: "context",
+        refreshToken: fetchHttpRequestContextRealtimeToken,
+    });
+    const outputData = useNodeContext({
+        channel: HTTP_REQUEST_CONTEXT_CHANNEL_NAME,
+        dataType: "outputData",
+        nodeId: props.id,
+        topic: "context",
+        refreshToken: fetchHttpRequestContextRealtimeToken,
     });
 
     return (
         <>
             <HttpRequestNodeDialog
+                inputData={inputData}
+                outputData={outputData}
                 open={showDialog}
                 setShowDialog={setShowDialog}
                 nodeData={nodeData}

@@ -33,6 +33,7 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { useEffect } from "react";
+import BaseNodeDialogContext from "../base-dialog";
 
 const formSchema = z.object({
     variableName: z.string()
@@ -50,6 +51,9 @@ interface HttpRequestNodeDialogProps {
     open: boolean;
     nodeData: HttpRequestFormValues;
     onSubmit: (values: HttpRequestFormValues) => void;
+    inputData?: any;
+    outputData?: any;
+
 }
 
 export default function HttpRequestNodeDialog({
@@ -57,6 +61,8 @@ export default function HttpRequestNodeDialog({
     open,
     nodeData,
     onSubmit,
+    inputData,
+    outputData,
 }: HttpRequestNodeDialogProps) {
 
     const form = useForm<HttpRequestFormValues>({
@@ -83,133 +89,127 @@ export default function HttpRequestNodeDialog({
     };
 
     return (
-        <Dialog open={open} onOpenChange={setShowDialog}>
-            <DialogContent className="sm:max-w-md">
-                <DialogHeader>
-                    <DialogTitle>HTTP Request</DialogTitle>
-                    <DialogDescription className="text-sm text-muted-foreground">
-                        Configure the HTTP Request node settings below.
-                    </DialogDescription>
-                </DialogHeader>
-
-                <Separator />
-
-                <Form {...form}>
-                    <form
-                        onSubmit={form.handleSubmit(handleSubmit)}
-                        className="py-2 space-y-4"
-                    >
-                        <FormField
-                            control={form.control}
-                            name="variableName"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Variable Name</FormLabel>
-                                    <FormControl>
-                                        <Input
-                                            // value={field.value}
-                                            {...field}
-                                        />
-                                    </FormControl>
-                                    <FormDescription className="text-xs">
-                                        use this name to reference the result in other nodes: {" "}
-                                        {`{{${(field.value || "httpResponse")}.data}}`}
-                                    </FormDescription>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <FormField
-                            control={form.control}
-                            name="endpoint"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Endpoint URL</FormLabel>
-                                    <FormControl>
-                                        <Input
-                                            placeholder="https://api.example.com/users/{{httpResponse.data.id}}"
-                                            // value={field.value}
-                                            autoFocus
-                                            {...field}
-                                        />
-                                    </FormControl>
-                                    <FormDescription className="text-xs">
-                                        Static url or use {"{{variable}}"} syntax to reference data from previous nodes.
-                                    </FormDescription>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <FormField
-                            control={form.control}
-                            name="method"
-                            render={({ field }) => (
-                                <FormItem >
-                                    <FormLabel>HTTP Method</FormLabel>
-                                    <Select
-                                        onValueChange={field.onChange}
-                                        value={field.value}
-                                    >
-                                        <FormControl className="w-full">
-                                            <SelectTrigger>
-                                                <SelectValue placeholder="Select HTTP method" />
-                                            </SelectTrigger>
-                                        </FormControl>
-                                        <SelectContent>
-                                            <SelectItem value="GET">GET</SelectItem>
-                                            <SelectItem value="POST">POST</SelectItem>
-                                            <SelectItem value="PUT">PUT</SelectItem>
-                                            <SelectItem value="DELETE">
-                                                DELETE
-                                            </SelectItem>
-                                            <SelectItem value="PATCH">PATCH</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                    <FormDescription className="text-xs">
-                                        Choose the HTTP method for your request.
-                                    </FormDescription>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-
-                        {/* Body */}
-                        {formWatch !== "GET" && formWatch !== "DELETE" && (
-                            <FormField
-                                control={form.control}
-                                name="body"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Request Body (Optional)</FormLabel>
-                                        <FormControl>
-                                            <Textarea
-                                                placeholder={'{\n "items": "{{httpResponse.data.items}}," \n "name": "{{httpResponse.data.name}}" \n}'}
-                                                className="min-h-25 font-mono text-sm"
-                                                {...field}
-                                            />
-                                        </FormControl>
-                                        <FormDescription className="text-xs">
-                                            JSON body for POST, PUT, or PATCH requests. Use {"{{variable}}"} syntax to reference data from previous nodes. or {"json {{httpResponse.data}}"}  to stringify JSON data.
-                                        </FormDescription>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
+        <BaseNodeDialogContext
+            open={open}
+            setShowDialog={setShowDialog}
+            inputData={inputData}
+            outputData={outputData}
+        >
+            <Form {...form}>
+                <form
+                    onSubmit={form.handleSubmit(handleSubmit)}
+                    className="py-2 space-y-4"
+                >
+                    <FormField
+                        control={form.control}
+                        name="variableName"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Variable Name</FormLabel>
+                                <FormControl>
+                                    <Input
+                                        // value={field.value}
+                                        {...field}
+                                    />
+                                </FormControl>
+                                <FormDescription className="text-xs">
+                                    use this name to reference the result in other nodes: {" "}
+                                    {`{{${(field.value || "httpResponse")}.data}}`}
+                                </FormDescription>
+                                <FormMessage />
+                            </FormItem>
                         )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="endpoint"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Endpoint URL</FormLabel>
+                                <FormControl>
+                                    <Input
+                                        placeholder="https://api.example.com/users/{{httpResponse.data.id}}"
+                                        // value={field.value}
+                                        autoFocus
+                                        {...field}
+                                    />
+                                </FormControl>
+                                <FormDescription className="text-xs">
+                                    Static url or use {"{{variable}}"} syntax to reference data from previous nodes.
+                                </FormDescription>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="method"
+                        render={({ field }) => (
+                            <FormItem >
+                                <FormLabel>HTTP Method</FormLabel>
+                                <Select
+                                    onValueChange={field.onChange}
+                                    value={field.value}
+                                >
+                                    <FormControl className="w-full">
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Select HTTP method" />
+                                        </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                        <SelectItem value="GET">GET</SelectItem>
+                                        <SelectItem value="POST">POST</SelectItem>
+                                        <SelectItem value="PUT">PUT</SelectItem>
+                                        <SelectItem value="DELETE">
+                                            DELETE
+                                        </SelectItem>
+                                        <SelectItem value="PATCH">PATCH</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                                <FormDescription className="text-xs">
+                                    Choose the HTTP method for your request.
+                                </FormDescription>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
 
-                        <DialogFooter className="gap-2 pt-4">
-                            <Button
-                                type="button"
-                                variant="outline"
-                                onClick={() => setShowDialog(false)}
-                            >
-                                Cancel
-                            </Button>
-                            <Button type="submit">Save</Button>
-                        </DialogFooter>
-                    </form>
-                </Form>
-            </DialogContent>
-        </Dialog>
+                    {/* Body */}
+                    {formWatch !== "GET" && formWatch !== "DELETE" && (
+                        <FormField
+                            control={form.control}
+                            name="body"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Request Body (Optional)</FormLabel>
+                                    <FormControl>
+                                        <Textarea
+                                            placeholder={'{\n "items": "{{httpResponse.data.items}}," \n "name": "{{httpResponse.data.name}}" \n}'}
+                                            className="min-h-25 font-mono text-sm"
+                                            {...field}
+                                        />
+                                    </FormControl>
+                                    <FormDescription className="text-xs">
+                                        JSON body for POST, PUT, or PATCH requests. Use {"{{variable}}"} syntax to reference data from previous nodes. or {"json {{httpResponse.data}}"}  to stringify JSON data.
+                                    </FormDescription>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                    )}
+
+                    <DialogFooter className="gap-2 pt-4">
+                        <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => setShowDialog(false)}
+                        >
+                            Cancel
+                        </Button>
+                        <Button type="submit">Save</Button>
+                    </DialogFooter>
+                </form>
+            </Form>
+        </BaseNodeDialogContext>
     );
 }
