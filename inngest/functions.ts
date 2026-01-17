@@ -13,7 +13,7 @@ const openai = createOpenAI();
 const anthropic = createAnthropic();
 
 export const executeAI = inngest.createFunction(
-    { id: "execute-ai" },
+    { id: "execute-ai", retries: 0 },
     { event: "execute/ai" },
     async ({ event, step }) => {
 
@@ -39,7 +39,7 @@ export const executeAI = inngest.createFunction(
 export const executeWorkFlow = inngest.createFunction(
     { id: "execute-workflow" },
     { event: "workflows/execute" },
-    async ({ event, step }) => {
+    async ({ event, step, publish }) => {
         const { workflowId } = event.data;
 
         if (!workflowId) throw new NonRetriableError("Workflow ID is required");
@@ -70,6 +70,7 @@ export const executeWorkFlow = inngest.createFunction(
                 nodeId: node.id,
                 context,
                 step,
+                publish,
             });
         }
 

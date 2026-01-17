@@ -1,7 +1,7 @@
 "use client"
 
 import { useSuspenseGetOneWorkFlow } from "@/hooks/workflows/use-workflows";
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useEffect } from 'react';
 import { ReactFlow, applyNodeChanges, applyEdgeChanges, addEdge, type Node, type Edge, type NodeChange, type EdgeChange, type Connection, Background, MiniMap, Controls, Panel } from '@xyflow/react';
 
 import '@xyflow/react/dist/style.css';
@@ -12,14 +12,13 @@ import { editorAtome } from "@/lib/atoms";
 import { NodeType } from "@/lib/generated/prisma/enums";
 import ExecuteWorkflowButton from "../workflows/execute-workflow-button";
 
-
-
 export function Editor({ workFlowId }: { workFlowId: string }) {
     const { data: workFlow } = useSuspenseGetOneWorkFlow(workFlowId);
 
     const [nodes, setNodes] = useState<Node[]>(workFlow.nodes);
     const [edges, setEdges] = useState<Edge[]>(workFlow.edges);
 
+    
     const setEditor = useSetAtom(editorAtome);
 
 
