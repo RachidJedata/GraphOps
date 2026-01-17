@@ -7,11 +7,7 @@
   --color-primary-500: #dceefe;
   /* --color-on-primary: #ffffff; */
 } 
-@keyframes dash {
-  to {
-    stroke-dashoffset: -20;
-  }
-}
+
 :root {
   --background: oklch(0.9842 0.0034 247.8575);
   --foreground: oklch(0.2077 0.0398 265.7549);
