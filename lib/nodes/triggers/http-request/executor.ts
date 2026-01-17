@@ -82,12 +82,12 @@ export const httpRequestExecutor: NodeExecutor<Partial<HttpRequestFormValues>> =
 
 
             return {
-                ...context,
                 [variableName]: {
                     status: response.status,
                     statusText: response.statusText,
                     data: responseData,
-                }
+                },
+                ...context,
             }
         });
 

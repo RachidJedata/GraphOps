@@ -32,6 +32,12 @@ const triggerNodes: NodeTypeOption[] = [
         icon: MousePointerIcon,
         description: 'Manual trigger to start a workflow, usually from a user action. Easy to begin your automation journey.',
     },
+    {
+        type: NodeType.GOOGLE_FORM_TRIGGER,
+        label: 'Google form',
+        icon: "/icons/googleform.svg",
+        description: 'Runs the flow when the google form is submitted',
+    },
 ];
 const executionNodes: NodeTypeOption[] = [
     {
@@ -54,7 +60,7 @@ function NodeOptionCard({ option, handleSelectNode }: { option: NodeTypeOption, 
                         transition-colors"
             onClick={handleSelectNode}
         >
-            <div className="flex w-full gap-3">
+            <div className="flex w-full gap-3 justify-items-center">
                 {typeof option.icon !== 'string' ? (
                     <div className="mt-1">
                         <option.icon className="size-5 shrink-0 text-muted-foreground" />
@@ -63,7 +69,7 @@ function NodeOptionCard({ option, handleSelectNode }: { option: NodeTypeOption, 
                     <Image
                         src={option.icon}
                         alt={option.label}
-                        className="size-5 object-contain shrink-0 text-muted-foreground"
+                        className="size-6 object-contain shrink-0 text-muted-foreground"
                         width={20}
                         height={20}
                     />
