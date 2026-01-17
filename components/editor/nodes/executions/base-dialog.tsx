@@ -8,7 +8,6 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@/components/ui/dialog";
-import { Separator } from "@/components/ui/separator";
 import "react-json-view-lite/dist/index.css";
 
 interface HttpRequestNodeDialogProps {
