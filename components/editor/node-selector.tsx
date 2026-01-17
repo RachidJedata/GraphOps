@@ -38,6 +38,12 @@ const triggerNodes: NodeTypeOption[] = [
         icon: "/icons/googleform.svg",
         description: 'Runs the flow when the google form is submitted',
     },
+    {
+        type: NodeType.STRIPE_TRIGGER,
+        label: 'Stripe Event',
+        icon: "/icons/stripe.svg",
+        description: 'Runs the flow when the stripe event is captured',
+    },
 ];
 const executionNodes: NodeTypeOption[] = [
     {
@@ -60,7 +66,7 @@ function NodeOptionCard({ option, handleSelectNode }: { option: NodeTypeOption, 
                         transition-colors"
             onClick={handleSelectNode}
         >
-            <div className="flex w-full gap-3 justify-items-center">
+            <div className="flex w-full gap-3 justify-items-center items-center">
                 {typeof option.icon !== 'string' ? (
                     <div className="mt-1">
                         <option.icon className="size-5 shrink-0 text-muted-foreground" />
