@@ -3,8 +3,7 @@ import { NonRetriableError } from "inngest";
 import ky, { type Options as kyOptions } from 'ky';
 import HandleBars from 'handlebars';
 import { HttpRequestFormValues } from "@/components/editor/nodes/executions/http-request-node/dialog";
-import { httpRequestChannel } from "@/inngest/channels/http-request";
-import { NodeStatus } from "@/components/react-flow/node-status-indicator";
+import { httpRequestContextChannel, httpRequestStatusChannel } from "@/inngest/channels/http-request";
 
 
 
@@ -24,7 +23,7 @@ export const httpRequestExecutor: NodeExecutor<Partial<HttpRequestFormValues>> =
 }) => {
 
     //publish "loading" state for http request
-    await publish(httpRequestChannel().status({
+    await publish(httpRequestStatusChannel().status({
         nodeId,
         status: "loading",
     }));
@@ -33,7 +32,7 @@ export const httpRequestExecutor: NodeExecutor<Partial<HttpRequestFormValues>> =
 
     if (!endpoint) {
         //publish "error" state for http request
-        await publish(httpRequestChannel().status({
+        await publish(httpRequestStatusChannel().status({
             nodeId,
             status: "error",
         }));
@@ -41,12 +40,18 @@ export const httpRequestExecutor: NodeExecutor<Partial<HttpRequestFormValues>> =
     }
     if (!variableName) {
         //publish "error" state for http request
-        await publish(httpRequestChannel().status({
+        await publish(httpRequestStatusChannel().status({
             nodeId,
             status: "error",
         }));
         throw new NonRetriableError("HTTP Request node: No variable Name given");
     }
+
+    await publish(httpRequestContextChannel().context({
+        nodeId,
+        dataType: "inputData",
+        data: context,
+    }));
 
     try {
         const result = await step.run("http-request", async () => {
@@ -81,7 +86,7 @@ export const httpRequestExecutor: NodeExecutor<Partial<HttpRequestFormValues>> =
             const responseData = isJson ? await response.json() : await response.text();
 
 
-            return {
+            const newContext = {
                 [variableName]: {
                     status: response.status,
                     statusText: response.statusText,
@@ -89,10 +94,17 @@ export const httpRequestExecutor: NodeExecutor<Partial<HttpRequestFormValues>> =
                 },
                 ...context,
             }
+            await publish(httpRequestContextChannel().context({
+                nodeId,
+                dataType: "outputData",
+                data: newContext,
+            }));
+
+            return newContext;
         });
 
         //publish "success" state for http request
-        await publish(httpRequestChannel().status({
+        await publish(httpRequestStatusChannel().status({
             nodeId,
             status: "success",
         }));
@@ -100,7 +112,7 @@ export const httpRequestExecutor: NodeExecutor<Partial<HttpRequestFormValues>> =
         return result;
     } catch (error) {
         //publish "error" state for http request
-        await publish(httpRequestChannel().status({
+        await publish(httpRequestStatusChannel().status({
             nodeId,
             status: "error",
         }));
