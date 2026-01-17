@@ -61,9 +61,9 @@ export const httpRequestExecutor: NodeExecutor<Partial<HttpRequestFormValues>> =
                     //did that just to ensure it is a valid json
                     JSON.parse(resolved);
                 } catch (error) {
-                    if (error instanceof Error && error.message.toLowerCase().includes("invalid"))
+                    if (error instanceof SyntaxError) {
                         throw new NonRetriableError("json format in body is invalid");
-
+                    }
                     throw error;
                 }
 
