@@ -6,6 +6,9 @@ import { Node, NodeProps, useReactFlow } from "@xyflow/react";
 import { memo, useEffect, useState } from "react";
 import HttpRequestNodeDialog, { HttpRequestFormValues } from "./dialog";
 import { NodeType } from "@/lib/generated/prisma/enums";
+import { useNodeStatus } from "@/hooks/nodes/use-node-status";
+import { fetchHttpRequestRealtimeToken } from "@/lib/nodes/triggers/http-request/get-subscribe-token";
+import { HTTP_REQUEST_CHANNEL_NAME } from "@/inngest/channels/http-request";
 
 type HttpRequestNodeProps = Node<HttpRequestFormValues>;
 
@@ -48,6 +51,13 @@ export const HttpRequestNode = memo((props: NodeProps<HttpRequestNodeProps>) => 
 
     }, [nodeData.endpoint]);
 
+    const nodeStatus = useNodeStatus({
+        channel: HTTP_REQUEST_CHANNEL_NAME,
+        nodeId: props.id,
+        topic: "status",
+        refreshToken: fetchHttpRequestRealtimeToken,
+    });
+
     return (
         <>
             <HttpRequestNodeDialog
@@ -64,7 +74,7 @@ export const HttpRequestNode = memo((props: NodeProps<HttpRequestNodeProps>) => 
                 description={description}
                 name="HTTP Request"
                 icon={GlobeIcon}
-                status={"initial"}
+                status={nodeStatus}
                 onDoubleClick={handleDoubleClick}
                 onSettingsClick={handleDoubleClick}
             />

@@ -2,7 +2,7 @@
 
 import { LucideIcon } from "lucide-react";
 import { WorkFlowNode } from "../../workflow-node";
-import { memo } from "react";
+import { memo, useEffect } from "react";
 import { BaseNode, BaseNodeContent } from "@/components/react-flow/base-node";
 import Image from "next/image";
 import { BaseHandle } from "@/components/react-flow/base-handle";
@@ -39,6 +39,8 @@ export const BaseTriggerNode = memo(({
         setNodes((nds) => nds.filter((n) => n.id !== id));
         setEdges((eds) => eds.filter((e) => e.source !== id && e.target !== id));
     }
+
+
     return (
         <WorkFlowNode
             description={description}
