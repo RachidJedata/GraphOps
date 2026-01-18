@@ -4,6 +4,9 @@ import InitialNode from "@/components/editor/nodes/base-nodes/initial-node";
 import { HttpRequestNode } from "@/components/editor/nodes/executions/http-request-node/node";
 import { GoogleFormTriggerNode } from "@/components/editor/nodes/triggers/google-form-node/node";
 import { StripeTriggerNode } from "@/components/editor/nodes/triggers/stripe-trigger-node/node";
+import { GeminiNode } from "@/components/editor/nodes/executions/gemini/node";
+import { OpenAINode } from "@/components/editor/nodes/executions/openai/node";
+import { anthropicNode } from "@/components/editor/nodes/executions/anthropic/node";
 
 export const nodeComponents = {
     [NodeType.INITIAL]: InitialNode,
@@ -11,6 +14,9 @@ export const nodeComponents = {
     [NodeType.HTTP_REQUEST]: HttpRequestNode,
     [NodeType.GOOGLE_FORM_TRIGGER]: GoogleFormTriggerNode,
     [NodeType.STRIPE_TRIGGER]: StripeTriggerNode,
+    [NodeType.GEMINI]: GeminiNode,
+    [NodeType.ANTHROPIC]: anthropicNode,
+    [NodeType.OPENAI]: OpenAINode,
 
 };
 // } as const satisfies NodeTypes;

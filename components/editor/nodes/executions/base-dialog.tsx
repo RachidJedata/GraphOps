@@ -16,6 +16,8 @@ interface HttpRequestNodeDialogProps {
     outputData?: any;
     setShowDialog: (show: boolean) => void;
     open: boolean;
+    title: string;
+    description: string;
 }
 
 export default function BaseNodeDialogContext({
@@ -24,6 +26,8 @@ export default function BaseNodeDialogContext({
     outputData,
     open,
     setShowDialog,
+    description,
+    title,
 }: HttpRequestNodeDialogProps) {
     const isFullScreen = inputData || outputData;
 
@@ -38,9 +42,9 @@ export default function BaseNodeDialogContext({
             >
                 {/* ===== Header ===== */}
                 <DialogHeader className="px-6">
-                    <DialogTitle>HTTP Request</DialogTitle>
+                    <DialogTitle>{title}</DialogTitle>
                     <DialogDescription className="text-sm text-muted-foreground">
-                        Configure the HTTP Request node settings below.
+                        {description}
                     </DialogDescription>
                 </DialogHeader>
 

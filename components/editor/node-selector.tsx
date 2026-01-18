@@ -52,6 +52,24 @@ const executionNodes: NodeTypeOption[] = [
         icon: GlobeIcon,
         description: 'Make HTTP requests to external APIs. Integrate with web services and fetch data seamlessly.',
     },
+    {
+        type: NodeType.GEMINI,
+        label: 'Gemini',
+        icon: "/icons/gemini.svg",
+        description: 'Use gemini to generate text.',
+    },
+    {
+        type: NodeType.OPENAI,
+        label: 'OpenAI',
+        icon: "/icons/openai.svg",
+        description: 'Use OpenAI to generate text.',
+    },
+    {
+        type: NodeType.ANTHROPIC,
+        label: 'Anthropic',
+        icon: "/icons/anthropic.svg",
+        description: 'Use Anthropic to generate text.',
+    },
 ];
 
 
@@ -95,6 +113,8 @@ function NodeOptionCard({ option, handleSelectNode }: { option: NodeTypeOption, 
         </div>
     );
 }
+
+
 
 export function NodeSelector({ open, setOpen, children }: { children: React.ReactNode, open: boolean, setOpen: (open: boolean) => void }) {
     const { setNodes, getNodes, screenToFlowPosition } = useReactFlow();
@@ -140,11 +160,11 @@ export function NodeSelector({ open, setOpen, children }: { children: React.Reac
                     {children}
                 </SheetTrigger>
                 <SheetContent side="right" className="w-full sm:w-125">
-                    <SheetHeader>
+                    <SheetHeader className="mb-1">
                         <SheetTitle>Add Node</SheetTitle>
                     </SheetHeader>
-                    <ScrollArea className="h-150 w-full rounded-md border">
-                        <div className="p-4  space-y-6">
+                    <ScrollArea className="h-[calc(100vh-8rem)] w-full rounded-md border">
+                        <div className="p-4 space-y-6 pb-8">
                             {/* Trigger Nodes Section */}
                             <div className="space-y-3 mb-2">
                                 <div>
@@ -161,7 +181,7 @@ export function NodeSelector({ open, setOpen, children }: { children: React.Reac
                             <Separator className='mb-1' />
 
                             {/* Execution Nodes Section */}
-                            <div className="space-y-2 ">
+                            <div className="space-y-2">
                                 <div>
                                     <h3 className="text-sm font-semibold mb-1">Actions</h3>
                                     <p className="text-xs text-muted-foreground">Execute operations</p>

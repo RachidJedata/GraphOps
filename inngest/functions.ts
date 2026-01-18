@@ -1,43 +1,12 @@
 import { inngest } from "./client";
-import { createGoogleGenerativeAI } from '@ai-sdk/google'
-import { createOpenAI } from '@ai-sdk/openai'
-import { createAnthropic } from '@ai-sdk/anthropic'
-import { generateText } from 'ai'
 import { NonRetriableError } from "inngest";
 import prisma from "@/lib/db";
 import { topologicalSort } from "./utils";
 import { getNodeExecutor } from "@/lib/executions/executor-registory";
 
-const google = createGoogleGenerativeAI();
-const openai = createOpenAI();
-const anthropic = createAnthropic();
-
-export const executeAI = inngest.createFunction(
-    { id: "execute-ai", retries: 0 },
-    { event: "execute/ai" },
-    async ({ event, step }) => {
-
-        const { steps } = await step.ai.wrap(
-            "gemini-generate-text",
-            generateText,
-            {
-                model: google("gemini-2.5-flash"),
-                system: "",
-                prompt: "",
-                experimental_telemetry: {
-                    isEnabled: true,
-                    recordInputs: true,
-                    recordOutputs: true,
-                },
-            }
-        )
-
-        return steps;
-    },
-);
 
 export const executeWorkFlow = inngest.createFunction(
-    { id: "execute-workflow" },
+    { id: "execute-workflow", retries: 0 },
     { event: "workflows/execute" },
     async ({ event, step, publish }) => {
         const { workflowId, initialData } = event.data;
@@ -56,7 +25,6 @@ export const executeWorkFlow = inngest.createFunction(
 
             return topologicalSort(workflow.nodes, workflow.connections);
         });
-
 
         //Initialize context to pass between nodes
         let context = initialData || {};
