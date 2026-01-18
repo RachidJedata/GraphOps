@@ -20,7 +20,6 @@ export const anthropicNode = memo((props: NodeProps<AnthropicNodeProps>) => {
 
     const { setNodes, getNodes } = useReactFlow();
     const handleSubmit = (values: AnthropicFormValues) => {
-        // console.log("HTTP Request Node values:", values);
         setNodes((nds) => {
             return nds.map((node) => {
                 if (node.id === props.id) {
@@ -44,11 +43,17 @@ export const anthropicNode = memo((props: NodeProps<AnthropicNodeProps>) => {
     useEffect(() => {
         if (nodeData.variableName) return;
 
-        const lastNode = getNodes().filter(node => node.type === NodeType.ANTHROPIC).length
+        const nodeCount = getNodes().filter(node => node.type === NodeType.ANTHROPIC).length
 
-        nodeData.variableName = `anthropic${lastNode}`;
+        setNodes((nds) =>
+            nds.map((node) =>
+                node.id === props.id
+                    ? { ...node, data: { ...node.data, variableName: `anthropic${nodeCount}` } }
+                    : node
+            )
+        );
 
-    }, [props.id]);
+    }, [props.id, nodeData.variableName, getNodes, setNodes]);
 
     const nodeStatus = useNodeStatus({
         channel: ANTHROPIC_STATUS_CHANNEL_NAME,

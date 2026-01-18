@@ -65,14 +65,14 @@ export default function GeminiNodeDialog({
         resolver: zodResolver(formSchema),
         defaultValues: {
             ...nodeData,
-            modelId: "gemini-2.0-flash",
+            modelId: nodeData.modelId || "gemini-2.0-flash",
         },
     });
 
     useEffect(() => {
         form.reset({
             ...nodeData,
-            modelId: "gemini-2.0-flash",
+            modelId: nodeData.modelId || "gemini-2.0-flash",
         });
     }, [nodeData, form]);
 

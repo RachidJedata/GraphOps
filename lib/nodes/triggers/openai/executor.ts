@@ -89,9 +89,13 @@ export const openAIExecutor: NodeExecutor<Partial<OpenAIFormValues>> = async ({
             }
         )
 
-        const text = steps[0].content[0].type === "text"
-            ? steps[0].content[0].text
-            : "";
+        const firstStep = steps?.[0];
+        const firstContent = firstStep?.content?.[0];
+        const text = firstContent?.type === "text" ? firstContent.text : "";
+
+        if (!text) {
+            console.warn("OpenAI node: No text content in response");
+        }
 
         //publish "success" state for http request
         await publish(openAIStatusChannel().status({
@@ -100,8 +104,8 @@ export const openAIExecutor: NodeExecutor<Partial<OpenAIFormValues>> = async ({
         }));
 
         const newContext = {
+            ...context,
             [variableName]: text,
-            ...context
         };
 
         await publish(openAIContextChannel().context({

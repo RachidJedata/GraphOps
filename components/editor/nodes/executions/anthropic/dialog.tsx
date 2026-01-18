@@ -65,14 +65,14 @@ export default function AnthropicNodeDialog({
         resolver: zodResolver(formSchema),
         defaultValues: {
             ...nodeData,
-            modelId: "claude-3-opus",
+            modelId: nodeData.modelId || "claude-3-opus",
         },
     });
 
     useEffect(() => {
         form.reset({
             ...nodeData,
-            modelId: "claude-3-opus",
+            modelId: nodeData.modelId || "claude-3-opus",
         });
     }, [nodeData, form]);
 

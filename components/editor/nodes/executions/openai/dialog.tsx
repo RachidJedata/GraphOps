@@ -65,14 +65,14 @@ export default function OpenAINodeDialog({
         resolver: zodResolver(formSchema),
         defaultValues: {
             ...nodeData,
-            modelId: "gpt-4o",
+            modelId: nodeData.modelId || "gpt-4o",
         },
     });
 
     useEffect(() => {
         form.reset({
             ...nodeData,
-            modelId: "gpt-4o",
+            modelId: nodeData.modelId || "gpt-4o",
         });
     }, [nodeData, form]);
 

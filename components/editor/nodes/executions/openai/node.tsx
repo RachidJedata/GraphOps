@@ -22,7 +22,6 @@ export const OpenAINode = memo((props: NodeProps<OpenAINodeProps>) => {
 
     const { setNodes, getNodes } = useReactFlow();
     const handleSubmit = (values: OpenAIFormValues) => {
-        // console.log("HTTP Request Node values:", values);
         setNodes((nds) => {
             return nds.map((node) => {
                 if (node.id === props.id) {
@@ -46,11 +45,17 @@ export const OpenAINode = memo((props: NodeProps<OpenAINodeProps>) => {
     useEffect(() => {
         if (nodeData.variableName) return;
 
-        const lastNode = getNodes().filter(node => node.type === NodeType.GEMINI).length
+        const nodeCount = getNodes().filter(node => node.type === NodeType.GEMINI).length
 
-        nodeData.variableName = `openai${lastNode}`;
+        setNodes((nds) =>
+            nds.map((node) =>
+                node.id === props.id
+                    ? { ...node, data: { ...node.data, variableName: `anthropic${nodeCount}` } }
+                    : node
+            )
+        );
 
-    }, [props.id]);
+    }, [props.id, nodeData.variableName, getNodes, setNodes]);
 
     const nodeStatus = useNodeStatus({
         channel: OPENAI_STATUS_CHANNEL_NAME,

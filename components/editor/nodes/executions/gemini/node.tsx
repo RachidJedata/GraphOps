@@ -5,11 +5,8 @@ import { Node, NodeProps, useReactFlow } from "@xyflow/react";
 import { memo, useEffect, useState } from "react";
 import { NodeType } from "@/lib/generated/prisma/enums";
 import { useNodeStatus } from "@/hooks/nodes/use-node-status";
-import { HTTP_REQUEST_CONTEXT_CHANNEL_NAME, HTTP_REQUEST_STATUS_CHANNEL_NAME } from "@/inngest/channels/http-request";
-import { fetchHttpRequestContextRealtimeToken, fetchHttpRequestStatusRealtimeToken } from "@/lib/nodes/triggers/http-request/get-subscribe-token";
 import { useNodeContext } from "@/hooks/nodes/use-node-context";
 import GeminiNodeDialog, { GeminiFormValues } from "./dialog";
-import { HttpRequestFormValues } from "../http-request-node/dialog";
 import { GEMINI_CONTEXT_CHANNEL_NAME, GEMINI_STATUS_CHANNEL_NAME } from "@/inngest/channels/gemini";
 import { fetchGeminiContextRealtimeToken, fetchGeminiStatusRealtimeToken } from "@/lib/nodes/triggers/gemini/get-subscribe-token";
 
@@ -23,7 +20,6 @@ export const GeminiNode = memo((props: NodeProps<GeminiNodeProps>) => {
 
     const { setNodes, getNodes } = useReactFlow();
     const handleSubmit = (values: GeminiFormValues) => {
-        // console.log("HTTP Request Node values:", values);
         setNodes((nds) => {
             return nds.map((node) => {
                 if (node.id === props.id) {
@@ -47,11 +43,17 @@ export const GeminiNode = memo((props: NodeProps<GeminiNodeProps>) => {
     useEffect(() => {
         if (nodeData.variableName) return;
 
-        const lastNode = getNodes().filter(node => node.type === NodeType.GEMINI).length
+        const nodeCount = getNodes().filter(node => node.type === NodeType.GEMINI).length
 
-        nodeData.variableName = `gemini${lastNode}`;
+        setNodes((nds) =>
+            nds.map((node) =>
+                node.id === props.id
+                    ? { ...node, data: { ...node.data, variableName: `gemini${nodeCount}` } }
+                    : node
+            )
+        );
 
-    }, [props.id]);
+    }, [props.id, nodeData.variableName, getNodes, setNodes]);
 
     const nodeStatus = useNodeStatus({
         channel: GEMINI_STATUS_CHANNEL_NAME,
