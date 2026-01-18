@@ -87,12 +87,12 @@ export const httpRequestExecutor: NodeExecutor<Partial<HttpRequestFormValues>> =
 
 
             const newContext = {
+                ...context,
                 [variableName]: {
                     status: response.status,
                     statusText: response.statusText,
                     data: responseData,
                 },
-                ...context,
             }
             await publish(httpRequestContextChannel().context({
                 nodeId,

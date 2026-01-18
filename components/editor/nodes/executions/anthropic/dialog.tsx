@@ -5,15 +5,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import z from "zod";
 
 import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
     DialogFooter,
-    DialogHeader,
-    DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
 import {
     Form,
     FormControl,
@@ -34,29 +28,31 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { useEffect } from "react";
 import BaseNodeDialogContext from "../base-dialog";
+import { anthropicModelsId } from '@/types/triggers/anthropic/types'
+
 
 const formSchema = z.object({
     variableName: z.string()
         .min(1, "Variable name is required")
         .regex(/^[a-zA-Z_$][a-zA-Z0-9_$]*$/, "Invalid variable name"),
-    endpoint: z.string().min(1, "Please enter a URL"),
-    method: z.enum(["GET", "POST", "PUT", "DELETE", "PATCH"]),
-    body: z.string().optional(),
+    modelId: z.enum(anthropicModelsId),
+    systemPrompt: z.string().optional(),
+    userPrompt: z.string().min(1, "User prompt is required"),
 });
 
-export type HttpRequestFormValues = z.infer<typeof formSchema>;
+export type AnthropicFormValues = z.infer<typeof formSchema>;
 
 interface HttpRequestNodeDialogProps {
     setShowDialog: (show: boolean) => void;
     open: boolean;
-    nodeData: HttpRequestFormValues;
-    onSubmit: (values: HttpRequestFormValues) => void;
+    nodeData: AnthropicFormValues;
+    onSubmit: (values: AnthropicFormValues) => void;
     inputData?: any;
     outputData?: any;
 
 }
 
-export default function HttpRequestNodeDialog({
+export default function AnthropicNodeDialog({
     setShowDialog,
     open,
     nodeData,
@@ -65,33 +61,30 @@ export default function HttpRequestNodeDialog({
     outputData,
 }: HttpRequestNodeDialogProps) {
 
-    const form = useForm<HttpRequestFormValues>({
+    const form = useForm<AnthropicFormValues>({
         resolver: zodResolver(formSchema),
         defaultValues: {
             ...nodeData,
-            method: nodeData.method || "GET",
+            modelId: nodeData.modelId || "claude-3-opus",
         },
     });
-
-    const formWatch = form.watch("method");
-
 
     useEffect(() => {
         form.reset({
             ...nodeData,
-            method: nodeData.method || "GET"
+            modelId: nodeData.modelId || "claude-3-opus",
         });
     }, [nodeData, form]);
 
-    const handleSubmit = (values: HttpRequestFormValues) => {
+    const handleSubmit = (values: AnthropicFormValues) => {
         onSubmit(values);
         setShowDialog(false);
     };
 
     return (
         <BaseNodeDialogContext
-            title="HTTP Request"
-            description="Configure the HTTP Request node settings below."
+            title="anthropic Configuration"
+            description="Configure the AI model and prompts for this node"
             open={open}
             setShowDialog={setShowDialog}
             inputData={inputData}
@@ -116,89 +109,86 @@ export default function HttpRequestNodeDialog({
                                 </FormControl>
                                 <FormDescription className="text-xs">
                                     use this name to reference the result in other nodes: {" "}
-                                    {`{{${(field.value || "httpResponse")}.data}}`}
-                                </FormDescription>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-                    <FormField
-                        control={form.control}
-                        name="endpoint"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Endpoint URL</FormLabel>
-                                <FormControl>
-                                    <Input
-                                        placeholder="https://api.example.com/users/{{httpResponse.data.id}}"
-                                        // value={field.value}
-                                        autoFocus
-                                        {...field}
-                                    />
-                                </FormControl>
-                                <FormDescription className="text-xs">
-                                    Static url or use {"{{variable}}"} syntax to reference data from previous nodes.
-                                </FormDescription>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-                    <FormField
-                        control={form.control}
-                        name="method"
-                        render={({ field }) => (
-                            <FormItem >
-                                <FormLabel>HTTP Method</FormLabel>
-                                <Select
-                                    onValueChange={field.onChange}
-                                    value={field.value}
-                                >
-                                    <FormControl className="w-full">
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="Select HTTP method" />
-                                        </SelectTrigger>
-                                    </FormControl>
-                                    <SelectContent>
-                                        <SelectItem value="GET">GET</SelectItem>
-                                        <SelectItem value="POST">POST</SelectItem>
-                                        <SelectItem value="PUT">PUT</SelectItem>
-                                        <SelectItem value="DELETE">
-                                            DELETE
-                                        </SelectItem>
-                                        <SelectItem value="PATCH">PATCH</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                                <FormDescription className="text-xs">
-                                    Choose the HTTP method for your request.
+                                    {`{{${(field.value || "anthropic")}.context}}`}
                                 </FormDescription>
                                 <FormMessage />
                             </FormItem>
                         )}
                     />
 
-                    {/* Body */}
-                    {formWatch !== "GET" && formWatch !== "DELETE" && (
-                        <FormField
-                            control={form.control}
-                            name="body"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Request Body (Optional)</FormLabel>
-                                    <FormControl>
-                                        <Textarea
-                                            placeholder={'{\n "items": "{{httpResponse.data.items}}," \n "name": "{{httpResponse.data.name}}" \n}'}
-                                            className="min-h-25 font-mono text-sm"
-                                            {...field}
-                                        />
+                    <FormField
+                        control={form.control}
+                        name="modelId"
+                        render={({ field }) => (
+                            <FormItem >
+                                <FormLabel>Model Name</FormLabel>
+                                <Select
+                                    onValueChange={field.onChange}
+                                    value={field.value}
+                                >
+                                    <FormControl className="w-full">
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Select model" />
+                                        </SelectTrigger>
                                     </FormControl>
-                                    <FormDescription className="text-xs">
-                                        JSON body for POST, PUT, or PATCH requests. Use {"{{variable}}"} syntax to reference data from previous nodes. or {"json {{httpResponse.data}}"}  to stringify JSON data.
-                                    </FormDescription>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                    )}
+                                    <SelectContent>
+                                        {anthropicModelsId.map(id => (
+                                            <SelectItem key={id} value={id}>{id}</SelectItem>
+                                        ))}
+
+                                    </SelectContent>
+                                </Select>
+                                <FormDescription className="text-xs">
+                                    Choose the the model id of anthropic.
+                                </FormDescription>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+
+                    {/* System prompt */}
+                    <FormField
+                        control={form.control}
+                        name="systemPrompt"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>System prompt (Optional)</FormLabel>
+                                <FormControl>
+                                    <Textarea
+                                        placeholder="You are a helpful assistant"
+                                        className="min-h-20 font-mono text-sm"
+                                        {...field}
+                                    />
+                                </FormControl>
+                                <FormDescription className="text-xs">
+                                    Sets the behavior of the assistant. Use {" {{variables}} "} for simple values or {" {{json variables}} "} to stringify objects
+                                </FormDescription>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+
+                    <FormField
+                        control={form.control}
+                        name="userPrompt"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>User prompt</FormLabel>
+                                <FormControl>
+                                    <Textarea
+                                        autoFocus
+                                        placeholder={`Summarize this text: {{json variable}}`}
+                                        className="min-h-10 font-mono text-sm"
+                                        {...field}
+                                    />
+                                </FormControl>
+                                <FormDescription className="text-xs">
+                                    Static prompt or use {"{{variable}}"} syntax to reference data from previous nodes.
+                                </FormDescription>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
 
                     <DialogFooter className="gap-2 pt-4">
                         <Button
