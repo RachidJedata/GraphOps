@@ -5,6 +5,7 @@ import { generateText } from 'ai'
 import { createOpenAI } from '@ai-sdk/openai'
 import { openAIContextChannel, openAIStatusChannel } from "@/inngest/channels/openai";
 import { OpenAIFormValues } from "@/components/editor/nodes/executions/openai/dialog";
+import prisma from "@/lib/db";
 
 
 HandleBars.registerHelper('json', (aString) => {
@@ -29,7 +30,7 @@ export const openAIExecutor: NodeExecutor<Partial<OpenAIFormValues>> = async ({
         status: "loading",
     }));
 
-    const { variableName, modelId, systemPrompt, userPrompt } = data;
+    const { variableName, modelId, systemPrompt, userPrompt, credentialId } = data;
 
     if (!modelId) {
         //publish "error" state for openai
@@ -56,6 +57,15 @@ export const openAIExecutor: NodeExecutor<Partial<OpenAIFormValues>> = async ({
         throw new NonRetriableError("OpenAI node: user prompt is required");
     }
 
+    if (!credentialId) {
+        //publish "error" state for Gemini
+        await publish(openAIStatusChannel().status({
+            nodeId,
+            status: "error",
+        }));
+        throw new NonRetriableError("OpenAI node: API KEY is required");
+    }
+
     await publish(openAIContextChannel().context({
         nodeId,
         dataType: "inputData",
@@ -68,10 +78,18 @@ export const openAIExecutor: NodeExecutor<Partial<OpenAIFormValues>> = async ({
         const compiledSystemPrompt = systemPrompt ? HandleBars.compile(systemPrompt)(context) : "You are a helpful assistant.";
         const compiledUserPrompt = HandleBars.compile(userPrompt)(context);
 
-        //fetch credientiels of the user
+        const credential = await step.run("get-credential", async () => {
+            return await prisma.credientiels.findUnique({
+                where: {
+                    id: credentialId,
+                }
+            })
+        });
+
+        if (!credential) throw new NonRetriableError("OpenAI Node: API KEY is required")
 
         const openai = createOpenAI({
-            apiKey: process.env.OPENAI_API_KEY
+            apiKey: credential.value,
         });
 
         const { steps } = await step.ai.wrap(

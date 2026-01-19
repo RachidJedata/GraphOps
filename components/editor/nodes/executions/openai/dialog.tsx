@@ -29,6 +29,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { useEffect } from "react";
 import BaseNodeDialogContext from "../base-dialog";
 import { openAiModelsId } from "@/types/triggers/openai/types";
+import { useSuspenseGetCredentielsByType } from "@/hooks/credentiels/use-credentiels";
+import Image from "next/image";
+import Link from "next/link";
 
 
 const formSchema = z.object({
@@ -36,6 +39,7 @@ const formSchema = z.object({
         .min(1, "Variable name is required")
         .regex(/^[a-zA-Z_$][a-zA-Z0-9_$]*$/, "Invalid variable name"),
     modelId: z.enum(openAiModelsId),
+    credentialId: z.string().min(1, "Credential is required"),
     systemPrompt: z.string().optional(),
     userPrompt: z.string().min(1, "User prompt is required"),
 });
@@ -60,6 +64,7 @@ export default function OpenAINodeDialog({
     inputData,
     outputData,
 }: OpenAINodeDialogProps) {
+    const { data: credentials, isLoading: isLoadingCredentials } = useSuspenseGetCredentielsByType("OPENAI");
 
     const form = useForm<OpenAIFormValues>({
         resolver: zodResolver(formSchema),
@@ -140,6 +145,47 @@ export default function OpenAINodeDialog({
                                 </Select>
                                 <FormDescription className="text-xs">
                                     Choose the the model id of OpenAI.
+                                </FormDescription>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+
+                    <FormField
+                        control={form.control}
+                        name="credentialId"
+                        render={({ field }) => (
+                            <FormItem >
+                                <FormLabel>Gemini Credential</FormLabel>
+                                <Select
+                                    onValueChange={field.onChange}
+                                    value={field.value}
+                                    disabled={isLoadingCredentials || !credentials?.length}
+                                >
+                                    <FormControl className="w-full">
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Select a Credential" />
+                                        </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                        {credentials?.map(cred => (
+                                            <SelectItem key={cred.id} value={cred.id}>
+                                                <div className="flex gap-2 items-center">
+                                                    <Image alt={cred.name} src="/icons/openai.svg" className="size-3 text-muted-foreground rounded-sm" width={20} height={20} />
+                                                    {cred.name}
+                                                </div>
+                                            </SelectItem>
+                                        ))}
+
+                                    </SelectContent>
+                                </Select>
+                                <FormDescription className="text-xs">
+                                    {!credentials?.length && !isLoadingCredentials ? (
+                                        <>
+                                            You have no available credentials, Create new
+                                            <Link className="font-medium text-primary ml-1 " prefetch href={`/credentials/new`}>Credentials</Link>
+                                        </>
+                                    ) : (<>Choose one of the credentials you have</>)}
                                 </FormDescription>
                                 <FormMessage />
                             </FormItem>
