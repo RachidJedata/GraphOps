@@ -104,11 +104,11 @@ export function CredentialForm({ initialData }: CredentialFormProps) {
                 ...values,
             }, {
                 onSuccess: (data) => {
-                    toast.success(`Credential updated successfully!`);
+                    toast.success(`Credential ${data.name} updated successfully!`);
                     router.push(`/credentials`);
                 },
                 onError: (err) => {
-                    toast.success(`Error happened: ${err.message}, please try again!`);
+                    toast.error(`Error happened: ${err.message}, please try again!`);
                     handleError(err);
                 }
             })
@@ -216,7 +216,7 @@ export function CredentialForm({ initialData }: CredentialFormProps) {
                                     render={({ field }) => (
                                         <FormItem>
                                             <FormLabel>
-                                                Credential Value {!isEditMode && <span className="text-red-500">*</span>}
+                                                Credential Value: {!isEditMode ? (<span className="text-red-500">*</span>) : (<span className="text-green-700">(leave it empty if you don't wanna change it)</span>)}
                                             </FormLabel>
                                             <FormControl>
                                                 <div className="relative">
