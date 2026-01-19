@@ -156,7 +156,7 @@ export default function OpenAINodeDialog({
                         name="credentialId"
                         render={({ field }) => (
                             <FormItem >
-                                <FormLabel>Gemini Credential</FormLabel>
+                                <FormLabel>OpenAI Credential</FormLabel>
                                 <Select
                                     onValueChange={field.onChange}
                                     value={field.value}

@@ -156,7 +156,7 @@ export default function AnthropicNodeDialog({
                         name="credentialId"
                         render={({ field }) => (
                             <FormItem >
-                                <FormLabel>Gemini Credential</FormLabel>
+                                <FormLabel>Anthropic Credential</FormLabel>
                                 <Select
                                     onValueChange={field.onChange}
                                     value={field.value}
