@@ -34,7 +34,7 @@ export function useCreateCredentiel() {
     return useMutation(trpc.credientiels.create.mutationOptions({
         onSuccess: (data) => {
             toast.success(`Credentiels ${data.name} has been created`);
-            queryClient.invalidateQueries(trpc.credientiels.getMany.queryOptions({}));
+            queryClient.invalidateQueries(trpc.credientiels.getMany.queryFilter({}));
         },
         onError: (error) => {
             toast.error(`Failed to create a Credentiels: ${error.message}`);
@@ -49,7 +49,7 @@ export function useUpdateCredentiel() {
     return useMutation(trpc.credientiels.update.mutationOptions({
         onSuccess: (data) => {
             toast.success(`Credentiels "${data.name}" saved successfully`);
-            queryClient.invalidateQueries(trpc.credientiels.getOne.queryOptions({ id: data.id }));
+            queryClient.invalidateQueries(trpc.credientiels.getOne.queryFilter({ id: data.id }));
         },
         onError: (error) => {
             toast.error(`Failed to update a Credentiels: ${error.message}`);
@@ -67,7 +67,7 @@ export function useRemoveCredentiels() {
     return useMutation(trpc.credientiels.remove.mutationOptions({
         onSuccess: (data) => {
             toast.success(`Credentiels ${data.name} has been deleted`);
-            queryClient.invalidateQueries(trpc.credientiels.getMany.queryOptions({}));
+            queryClient.invalidateQueries(trpc.credientiels.getMany.queryFilter({}));
         },
         onError: (error) => {
             toast.error(`Failed to create a Credentiels: ${error.message}`);
