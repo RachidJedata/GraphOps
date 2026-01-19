@@ -5,7 +5,7 @@ import { HydrateClient } from "@/trpc/server";
 import { Suspense } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import type { SearchParams } from 'nuqs/server'
-import { EmptyView, ErrorView, LoadingView } from "@/components/entity-components";
+import { ErrorView, LoadingView } from "@/components/entity-components";
 
 type PageProps = {
     searchParams: Promise<SearchParams>

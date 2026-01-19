@@ -5,6 +5,7 @@ import { geminiContextChannel, geminiStatusChannel } from "@/inngest/channels/ge
 import { GeminiFormValues } from "@/components/editor/nodes/executions/gemini/dialog";
 import { generateText } from 'ai'
 import { createGoogleGenerativeAI } from '@ai-sdk/google'
+import prisma from "@/lib/db";
 
 
 HandleBars.registerHelper('json', (aString) => {
@@ -32,7 +33,7 @@ export const geminiExecutor: NodeExecutor<Partial<GeminiFormValues>> = async ({
         status: "loading",
     }));
 
-    const { variableName, modelId, systemPrompt, userPrompt } = data;
+    const { variableName, modelId, systemPrompt, userPrompt, credentialId } = data;
 
     if (!modelId) {
         //publish "error" state for gemini
@@ -58,6 +59,14 @@ export const geminiExecutor: NodeExecutor<Partial<GeminiFormValues>> = async ({
         }));
         throw new NonRetriableError("Gemini node: user prompt is required");
     }
+    if (!credentialId) {
+        //publish "error" state for Gemini
+        await publish(geminiStatusChannel().status({
+            nodeId,
+            status: "error",
+        }));
+        throw new NonRetriableError("Gemini node: API KEY is required");
+    }
 
     await publish(geminiContextChannel().context({
         nodeId,
@@ -71,11 +80,19 @@ export const geminiExecutor: NodeExecutor<Partial<GeminiFormValues>> = async ({
         const compiledSystemPrompt = systemPrompt ? HandleBars.compile(systemPrompt)(context) : "You are a helpful assistant.";
         const compiledUserPrompt = HandleBars.compile(userPrompt)(context);
 
-        //fetch credientiels of the user
-
-        const google = createGoogleGenerativeAI({
-            apiKey: process.env.GOOGLE_GENERATIVE_AI_API_KEY
+        const credential = await step.run("get-credential", async () => {
+            return await prisma.credientiels.findUnique({
+                where: {
+                    id: credentialId,
+                }
+            })
         });
+
+        if (!credential) throw new NonRetriableError("Gemini Node: API KEY is required")
+
+        //fetch credientiels of the user
+        const google = createGoogleGenerativeAI({ apiKey: credential.value });
+
 
         const { steps } = await step.ai.wrap(
             "gemini-generate-text",

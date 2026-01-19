@@ -5,6 +5,7 @@ import { anthropicContextChannel, anthropicStatusChannel } from "@/inngest/chann
 import { generateText } from 'ai'
 import { createAnthropic } from '@ai-sdk/anthropic'
 import { AnthropicFormValues } from "@/components/editor/nodes/executions/anthropic/dialog";
+import prisma from "@/lib/db";
 
 
 HandleBars.registerHelper('json', (aString) => {
@@ -31,7 +32,7 @@ export const anthropicExecutor: NodeExecutor<Partial<AnthropicFormValues>> = asy
         status: "loading",
     }));
 
-    const { variableName, modelId, systemPrompt, userPrompt } = data;
+    const { variableName, modelId, systemPrompt, userPrompt, credentialId } = data;
 
     if (!modelId) {
         //publish "error" state for anthropic
@@ -58,6 +59,15 @@ export const anthropicExecutor: NodeExecutor<Partial<AnthropicFormValues>> = asy
         throw new NonRetriableError("Anthropic node: user prompt is required");
     }
 
+    if (!credentialId) {
+        //publish "error" state for Gemini
+        await publish(anthropicStatusChannel().status({
+            nodeId,
+            status: "error",
+        }));
+        throw new NonRetriableError("Anthropic node: API KEY is required");
+    }
+
     await publish(anthropicContextChannel().context({
         nodeId,
         dataType: "inputData",
@@ -70,10 +80,18 @@ export const anthropicExecutor: NodeExecutor<Partial<AnthropicFormValues>> = asy
         const compiledSystemPrompt = systemPrompt ? HandleBars.compile(systemPrompt)(context) : "You are a helpful assistant.";
         const compiledUserPrompt = HandleBars.compile(userPrompt)(context);
 
-        //fetch credientiels of the user
+        const credential = await step.run("get-credential", async () => {
+            return await prisma.credientiels.findUnique({
+                where: {
+                    id: credentialId,
+                }
+            })
+        });
+
+        if (!credential) throw new NonRetriableError("Anthropic Node: API KEY is required")
 
         const anthropic = createAnthropic({
-            apiKey: process.env.ANTHROPIC_API_KEY
+            apiKey: credential.value,
         });
 
         const { steps } = await step.ai.wrap(

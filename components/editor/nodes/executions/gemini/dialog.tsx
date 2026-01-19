@@ -29,6 +29,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { useEffect } from "react";
 import BaseNodeDialogContext from "../base-dialog";
 import { geminiModelsId } from '@/types/triggers/gemini/types'
+import { useSuspenseGetCredentielsByType } from "@/hooks/credentiels/use-credentiels";
+import Link from "next/link";
+import Image from "next/image";
 
 
 const formSchema = z.object({
@@ -36,6 +39,7 @@ const formSchema = z.object({
         .min(1, "Variable name is required")
         .regex(/^[a-zA-Z_$][a-zA-Z0-9_$]*$/, "Invalid variable name"),
     modelId: z.enum(geminiModelsId),
+    credentialId: z.string().min(1, "Credential is required"),
     systemPrompt: z.string().optional(),
     userPrompt: z.string().min(1, "User prompt is required"),
 });
@@ -60,6 +64,7 @@ export default function GeminiNodeDialog({
     inputData,
     outputData,
 }: GeminiNodeDialogProps) {
+    const { data: credentials, isLoading: isLoadingCredentials } = useSuspenseGetCredentielsByType("GEMINI");
 
     const form = useForm<GeminiFormValues>({
         resolver: zodResolver(formSchema),
@@ -145,6 +150,46 @@ export default function GeminiNodeDialog({
                             </FormItem>
                         )}
                     />
+                    <FormField
+                        control={form.control}
+                        name="credentialId"
+                        render={({ field }) => (
+                            <FormItem >
+                                <FormLabel>Gemini Credential</FormLabel>
+                                <Select
+                                    onValueChange={field.onChange}
+                                    value={field.value}
+                                    disabled={isLoadingCredentials || !credentials?.length}
+                                >
+                                    <FormControl className="w-full">
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Select a Credential" />
+                                        </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                        {credentials?.map(cred => (
+                                            <SelectItem key={cred.id} value={cred.id}>
+                                                <div className="flex gap-2 items-center">
+                                                    <Image alt={cred.name} src="/icons/gemini.svg" className="size-3 text-muted-foreground rounded-sm" width={20} height={20} />
+                                                    {cred.name}
+                                                </div>
+                                            </SelectItem>
+                                        ))}
+
+                                    </SelectContent>
+                                </Select>
+                                <FormDescription className="text-xs">
+                                    {!credentials?.length && !isLoadingCredentials ? (
+                                        <>
+                                            You have no available credentials, Create new
+                                            <Link className="font-medium text-primary ml-1 " prefetch href={`/credentials/new`}>Credentials</Link>
+                                        </>
+                                    ) : (<>Choose one of the credentials you have</>)}
+                                </FormDescription>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
 
                     {/* System prompt */}
                     <FormField
@@ -190,7 +235,7 @@ export default function GeminiNodeDialog({
                         )}
                     />
 
-                    <DialogFooter className="gap-2 pt-4">
+                    <DialogFooter className="gap-2 pt-1">
                         <Button
                             type="button"
                             variant="outline"
