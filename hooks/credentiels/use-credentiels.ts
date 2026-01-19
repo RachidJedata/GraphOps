@@ -70,7 +70,7 @@ export function useRemoveCredentiels() {
             queryClient.invalidateQueries(trpc.credientiels.getMany.queryFilter({}));
         },
         onError: (error) => {
-            toast.error(`Failed to create a Credentiels: ${error.message}`);
+            toast.error(`Failed to remove a Credentiels: ${error.message}`);
         }
     }));
 }
