@@ -31,7 +31,8 @@ export const GoogleFormTriggerNode = memo((props: NodeProps) => {
                 icon={"/icons/googleform.svg"}
                 name="Google Form"
                 description="when form is submitted"
-                status={nodeStatus}
+                status={nodeStatus.status}
+                errorMessage={nodeStatus.errorMessage}
                 onDoubleClick={handleDoubleClick}
                 onSettingsClick={handleDoubleClick}
             />

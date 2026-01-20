@@ -95,7 +95,8 @@ export const DiscordNode = memo((props: NodeProps<DiscordNodeProps>) => {
                 description={description}
                 name="Discord"
                 icon={"/icons/discord.svg"}
-                status={nodeStatus}
+                status={nodeStatus.status}
+                errorMessage={nodeStatus.errorMessage}
                 onDoubleClick={handleDoubleClick}
                 onSettingsClick={handleDoubleClick}
             />

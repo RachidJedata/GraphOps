@@ -41,6 +41,7 @@ export const geminiExecutor: NodeExecutor<Partial<GeminiFormValues>> = async ({
         await publish(geminiStatusChannel().status({
             nodeId,
             status: "error",
+            error: "Gemini node: No model Id selected",
         }));
         throw new NonRetriableError("Gemini node: No model Id selected");
     }
@@ -49,6 +50,7 @@ export const geminiExecutor: NodeExecutor<Partial<GeminiFormValues>> = async ({
         await publish(geminiStatusChannel().status({
             nodeId,
             status: "error",
+            error: "Gemini node: No variable Name given",
         }));
         throw new NonRetriableError("Gemini node: No variable Name given");
     }
@@ -57,6 +59,7 @@ export const geminiExecutor: NodeExecutor<Partial<GeminiFormValues>> = async ({
         await publish(geminiStatusChannel().status({
             nodeId,
             status: "error",
+            error: "Gemini node: user prompt is required",
         }));
         throw new NonRetriableError("Gemini node: user prompt is required");
     }
@@ -65,6 +68,7 @@ export const geminiExecutor: NodeExecutor<Partial<GeminiFormValues>> = async ({
         await publish(geminiStatusChannel().status({
             nodeId,
             status: "error",
+            error: "Gemini node: API KEY is required",
         }));
         throw new NonRetriableError("Gemini node: API KEY is required");
     }
@@ -140,12 +144,16 @@ export const geminiExecutor: NodeExecutor<Partial<GeminiFormValues>> = async ({
         return newContext
 
     } catch (error) {
-
+        // All other errors are non-retriable
+        const errorMessage = error instanceof Error
+            ? error.message
+            : "Unknown error occurred";
 
         // Publish error state
         await publish(geminiStatusChannel().status({
             nodeId,
             status: "error",
+            error: errorMessage,
         }));
 
         // Handle specific non-retriable errors
@@ -164,10 +172,7 @@ export const geminiExecutor: NodeExecutor<Partial<GeminiFormValues>> = async ({
             throw error; // Will retry
         }
 
-        // All other errors are non-retriable
-        const errorMessage = error instanceof Error
-            ? error.message
-            : "Unknown error occurred";
+
 
         throw new NonRetriableError(`Gemini node: ${errorMessage}`);
     }

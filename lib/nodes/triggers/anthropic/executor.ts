@@ -40,6 +40,7 @@ export const anthropicExecutor: NodeExecutor<Partial<AnthropicFormValues>> = asy
         await publish(anthropicStatusChannel().status({
             nodeId,
             status: "error",
+            error: "Anthropic node: No model Id selected",
         }));
         throw new NonRetriableError("Anthropic node: No model Id selected");
     }
@@ -48,6 +49,7 @@ export const anthropicExecutor: NodeExecutor<Partial<AnthropicFormValues>> = asy
         await publish(anthropicStatusChannel().status({
             nodeId,
             status: "error",
+            error: "Anthropic node: No variable Name given",
         }));
         throw new NonRetriableError("Anthropic node: No variable Name given");
     }
@@ -56,6 +58,7 @@ export const anthropicExecutor: NodeExecutor<Partial<AnthropicFormValues>> = asy
         await publish(anthropicStatusChannel().status({
             nodeId,
             status: "error",
+            error: "Anthropic node: user prompt is required",
         }));
         throw new NonRetriableError("Anthropic node: user prompt is required");
     }
@@ -65,6 +68,7 @@ export const anthropicExecutor: NodeExecutor<Partial<AnthropicFormValues>> = asy
         await publish(anthropicStatusChannel().status({
             nodeId,
             status: "error",
+            error: "Anthropic node: API KEY is required",
         }));
         throw new NonRetriableError("Anthropic node: API KEY is required");
     }
@@ -140,12 +144,16 @@ export const anthropicExecutor: NodeExecutor<Partial<AnthropicFormValues>> = asy
         return newContext
 
     } catch (error) {
-
+        // All other errors are non-retriable
+        const errorMessage = error instanceof Error
+            ? error.message
+            : "Unknown error occurred";
 
         // Publish error state
         await publish(anthropicStatusChannel().status({
             nodeId,
             status: "error",
+            error: errorMessage,
         }));
 
         // Handle specific non-retriable errors
@@ -163,11 +171,6 @@ export const anthropicExecutor: NodeExecutor<Partial<AnthropicFormValues>> = asy
         if (error instanceof Error && error.message.includes('rate limit')) {
             throw error; // Will retry
         }
-
-        // All other errors are non-retriable
-        const errorMessage = error instanceof Error
-            ? error.message
-            : "Unknown error occurred";
 
         throw new NonRetriableError(`Anthropic node: ${errorMessage}`);
     }

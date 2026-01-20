@@ -39,6 +39,7 @@ export const SlackExecutor: NodeExecutor<Partial<SlackFormValues>> = async ({
         await publish(slackStatusChannel().status({
             nodeId,
             status: "error",
+            error: "Slack node: message content is required",
         }));
         throw new NonRetriableError("Slack node: message content is required ");
     }
@@ -47,6 +48,7 @@ export const SlackExecutor: NodeExecutor<Partial<SlackFormValues>> = async ({
         await publish(slackStatusChannel().status({
             nodeId,
             status: "error",
+            error: "Slack node: No variable Name given",
         }));
         throw new NonRetriableError("Slack node: No variable Name given");
     }
@@ -55,6 +57,7 @@ export const SlackExecutor: NodeExecutor<Partial<SlackFormValues>> = async ({
         await publish(slackStatusChannel().status({
             nodeId,
             status: "error",
+            error: "Slack node: webhook URL is required",
         }));
         throw new NonRetriableError("Slack node: webhook URL is required");
     }
@@ -105,11 +108,16 @@ export const SlackExecutor: NodeExecutor<Partial<SlackFormValues>> = async ({
 
     } catch (error) {
 
+        // All other errors are non-retriable
+        const errorMessage = error instanceof Error
+            ? error.message
+            : "Unknown error occurred";
 
         // Publish error state
         await publish(slackStatusChannel().status({
             nodeId,
             status: "error",
+            error: errorMessage,
         }));
 
         // Handle specific non-retriable errors
@@ -128,10 +136,7 @@ export const SlackExecutor: NodeExecutor<Partial<SlackFormValues>> = async ({
             throw error; // Will retry
         }
 
-        // All other errors are non-retriable
-        const errorMessage = error instanceof Error
-            ? error.message
-            : "Unknown error occurred";
+
 
         throw new NonRetriableError(`Slack node: ${errorMessage}`);
     }

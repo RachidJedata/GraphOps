@@ -35,6 +35,7 @@ export const httpRequestExecutor: NodeExecutor<Partial<HttpRequestFormValues>> =
         await publish(httpRequestStatusChannel().status({
             nodeId,
             status: "error",
+            error:"HTTP Request node: No endpoint configured"
         }));
         throw new NonRetriableError("HTTP Request node: No endpoint configured");
     }
@@ -43,6 +44,7 @@ export const httpRequestExecutor: NodeExecutor<Partial<HttpRequestFormValues>> =
         await publish(httpRequestStatusChannel().status({
             nodeId,
             status: "error",
+            error:"HTTP Request node: No variable Name given",
         }));
         throw new NonRetriableError("HTTP Request node: No variable Name given");
     }
@@ -111,10 +113,15 @@ export const httpRequestExecutor: NodeExecutor<Partial<HttpRequestFormValues>> =
 
         return result;
     } catch (error) {
+        const errorMessage = error instanceof Error
+            ? error.message
+            : "Unknown error occurred";
+
         //publish "error" state for http request
         await publish(httpRequestStatusChannel().status({
             nodeId,
             status: "error",
+            error: errorMessage,
         }));
 
         throw error;

@@ -17,7 +17,7 @@ export function useNodeStatus({
     refreshToken,
     topic,
 }: UseNodeStatusOptions) {
-    const [status, setStatus] = useState<NodeStatus>("initial");
+    const [status, setStatus] = useState<{ status: NodeStatus, errorMessage: string | undefined }>({ status: "initial", errorMessage: "" });
 
     const {
         data,
@@ -44,14 +44,19 @@ export function useNodeStatus({
             return;
         }
 
-        setStatus(message.data.status as NodeStatus);
+        setStatus({
+            status: message.data.status,
+            errorMessage: message.data.error,
+        });
     }, [latestData, channel, topic, nodeId]);
 
-    useEffect(() => {
-        if (error) {
-            setStatus("error");
-        }
-    }, [error]);
+    // useEffect(() => {
+    //     if (error) {
+    //         setStatus({
+
+    //         });
+    //     }
+    // }, [error]);
 
 
     return status;

@@ -11,7 +11,7 @@ type PageProps = {
     searchParams: Promise<SearchParams>
 }
 
-export default async function WorkFlow({ searchParams }: PageProps) {
+export default async function Credentials({ searchParams }: PageProps) {
     const params = await credentielParamsLoader(searchParams);
     prefetchCredentiels(params);
 

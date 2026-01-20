@@ -10,6 +10,7 @@ export const googleFormChannel = channel(GOOGLE_FORM_CHANNEL_NAME)
             z.object({
                 nodeId: z.string().min(1, "Node Id is required"),
                 status: z.enum(["loading", "success", "error"]),
+                error: z.string().optional(),
             })
         ),
     );

@@ -92,7 +92,8 @@ export const anthropicNode = memo((props: NodeProps<AnthropicNodeProps>) => {
                 description={description}
                 name="Anthropic"
                 icon={"/icons/anthropic.svg"}
-                status={nodeStatus}
+                status={nodeStatus.status}
+                errorMessage={nodeStatus.errorMessage}
                 onDoubleClick={handleDoubleClick}
                 onSettingsClick={handleDoubleClick}
             />

@@ -31,7 +31,8 @@ export const StripeTriggerNode = memo((props: NodeProps) => {
                 icon={"/icons/stripe.svg"}
                 name="Stripe"
                 description="when stripe event is captured"
-                status={nodeStatus}
+                status={nodeStatus.status}
+                errorMessage={nodeStatus.errorMessage}
                 onDoubleClick={handleDoubleClick}
                 onSettingsClick={handleDoubleClick}
             />

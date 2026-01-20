@@ -95,7 +95,8 @@ export const SlackNode = memo((props: NodeProps<SlackNodeProps>) => {
                 description={description}
                 name="Slack"
                 icon={"/icons/slack.svg"}
-                status={nodeStatus}
+                status={nodeStatus.status}
+                errorMessage={nodeStatus.errorMessage}
                 onDoubleClick={handleDoubleClick}
                 onSettingsClick={handleDoubleClick}
             />

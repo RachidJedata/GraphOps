@@ -38,6 +38,7 @@ export const openAIExecutor: NodeExecutor<Partial<OpenAIFormValues>> = async ({
         await publish(openAIStatusChannel().status({
             nodeId,
             status: "error",
+            error: "OpenAI node: No model Id selected",
         }));
         throw new NonRetriableError("OpenAI node: No model Id selected");
     }
@@ -46,6 +47,7 @@ export const openAIExecutor: NodeExecutor<Partial<OpenAIFormValues>> = async ({
         await publish(openAIStatusChannel().status({
             nodeId,
             status: "error",
+            error: "OpenAI node: No variable Name given",
         }));
         throw new NonRetriableError("OpenAI node: No variable Name given");
     }
@@ -54,6 +56,7 @@ export const openAIExecutor: NodeExecutor<Partial<OpenAIFormValues>> = async ({
         await publish(openAIStatusChannel().status({
             nodeId,
             status: "error",
+            error: "OpenAI node: user prompt is required",
         }));
         throw new NonRetriableError("OpenAI node: user prompt is required");
     }
@@ -63,6 +66,7 @@ export const openAIExecutor: NodeExecutor<Partial<OpenAIFormValues>> = async ({
         await publish(openAIStatusChannel().status({
             nodeId,
             status: "error",
+            error: "OpenAI node: API KEY is required",
         }));
         throw new NonRetriableError("OpenAI node: API KEY is required");
     }
@@ -139,11 +143,17 @@ export const openAIExecutor: NodeExecutor<Partial<OpenAIFormValues>> = async ({
 
     } catch (error) {
 
+        // All other errors are non-retriable
+        const errorMessage = error instanceof Error
+            ? error.message
+            : "Unknown error occurred";
+
 
         // Publish error state
         await publish(openAIStatusChannel().status({
             nodeId,
             status: "error",
+            error: errorMessage,
         }));
 
         // Handle specific non-retriable errors
@@ -162,10 +172,7 @@ export const openAIExecutor: NodeExecutor<Partial<OpenAIFormValues>> = async ({
             throw error; // Will retry
         }
 
-        // All other errors are non-retriable
-        const errorMessage = error instanceof Error
-            ? error.message
-            : "Unknown error occurred";
+
 
         throw new NonRetriableError(`OpenAI node: ${errorMessage}`);
     }

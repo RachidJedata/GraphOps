@@ -2,16 +2,44 @@ import { inngest } from "./client";
 import { NonRetriableError } from "inngest";
 import prisma from "@/lib/db";
 import { topologicalSort } from "./utils";
-import { getNodeExecutor } from "@/lib/executions/executor-registory";
+import { getNodeExecutor } from "@/lib/executor-registory";
 
 
 export const executeWorkFlow = inngest.createFunction(
-    { id: "execute-workflow", retries: 0 },
+    {
+        id: "execute-workflow",
+        retries: 0,
+        onFailure: async ({ step, error, event }) => {
+            await step.run("update-execution", async () => {
+                await prisma.execution.update({
+                    where: {
+                        inngestEventId: event.data.event.id,
+                    },
+                    data: {
+                        status: "FAILED",
+                        completedAt: null,
+                        error: error.message,
+                        errorStack: error.stack,
+                    }
+                });
+            });
+        },
+    },
     { event: "workflows/execute" },
     async ({ event, step, publish }) => {
         const { workflowId, initialData } = event.data;
+        const eventId = event.id;
 
-        if (!workflowId) throw new NonRetriableError("Workflow ID is required");
+        if (!eventId || !workflowId) throw new NonRetriableError("Workflow ID sor event ID is missing");
+
+        await step.run("create-execution", async () => {
+            await prisma.execution.create({
+                data: {
+                    inngestEventId: eventId,
+                    workflowId,
+                }
+            });
+        });
 
         const sortedNodes = await step.run("prepare-workflow", async () => {
             // Fetch from workflow to include 
@@ -55,10 +83,23 @@ export const executeWorkFlow = inngest.createFunction(
             });
         }
 
+        await step.run("update-execution", async () => {
+            await prisma.execution.update({
+                where: {
+                    inngestEventId: eventId,
+                    workflowId
+                },
+                data: {
+                    status: "SUCCESS",
+                    completedAt: new Date(Date.now()),
+                    output: context,
+                }
+            });
+        });
+
         return {
             workflowId,
             result: context,
-
         };
     },
 );
