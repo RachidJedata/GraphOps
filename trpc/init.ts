@@ -42,17 +42,36 @@ export const protectedProcedure = baseProcedure.use(async ({ ctx, next }) => {
 
 });
 
-export const premiumProcedure = protectedProcedure.use(async ({ ctx, next }) => {
+export const premiumProcedure = protectedProcedure.use(
+    async ({ ctx, next }) => {
+        try {
+            const customer = await polarClient.customers.getStateExternal({
+                externalId: ctx.auth.user.id,
+            });
 
-    const customer = await polarClient.customers.getStateExternal({
-        externalId: ctx.auth.user.id
-    })
+            // If no active subscriptions
+            if (!customer.activeSubscriptions || customer.activeSubscriptions.length === 0) {
+                throw new TRPCError({
+                    code: "FORBIDDEN",
+                    message: "You have to subscribe for this service",
+                });
+            }
 
-    if (!customer.activeSubscriptions || customer.activeSubscriptions.length === 0)
-        throw new TRPCError({
-            code: "FORBIDDEN",
-            message: "You have to subscribe for this service",
-        })
+            return next({ ctx: { ...ctx, customer } });
+        } catch (err: any) {
+            // Check if it's a Polar "Not found" error
+            if (err.error === "ResourceNotFound") {
+                throw new TRPCError({
+                    code: "FORBIDDEN",
+                    message: "You have to subscribe for this service",
+                });
+            }
 
-    return next({ ctx: { ...ctx, customer } });
-})
+            // Wrap any other errors as internal server error
+            throw new TRPCError({
+                code: "INTERNAL_SERVER_ERROR",
+                message: err?.message || "Unknown server error",
+            });
+        }
+    }
+);

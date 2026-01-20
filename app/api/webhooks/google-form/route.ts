@@ -42,7 +42,7 @@ const handler = async (req: NextRequest) => {
         })
 
     } catch (error) {
-        console.error("Google form webhook error: ", error);
+        // console.error("Google form webhook error: ", error);
         return NextResponse.json({
             success: false,
             error: `Failed to process google form submission : ${error}`,

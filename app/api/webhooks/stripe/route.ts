@@ -39,7 +39,7 @@ const handler = async (req: NextRequest) => {
         })
 
     } catch (error) {
-        console.error("Stripe webhook error: ", error);
+        // console.error("Stripe webhook error: ", error);
         return NextResponse.json({
             success: false,
             error: `Failed to process stripe event : ${error}`,
