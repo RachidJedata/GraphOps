@@ -1,22 +1,21 @@
 import { generateSlug } from 'random-word-slugs'
 import prisma from '@/lib/db';
-import { createTRPCRouter, protectedProcedure } from '@/trpc/init';
+import { createTRPCRouter, premiumProcedure } from '@/trpc/init';
 import z from 'zod';
 import { PAGINATION } from '../constants';
 import { NodeType } from '../generated/prisma/enums';
 import { Node as NodeFlow, Edge as flowEdge } from '@xyflow/react';
-import { inngest } from '@/inngest/client';
 import { sendWorkFlowExecution } from '@/inngest/utils';
 
 export const workFlowRouters = createTRPCRouter({
-    execute: protectedProcedure
+    execute: premiumProcedure
         .input(z.object({
             id: z.string().min(1, "WorkFlow Id is required"),
         }))
         .mutation(async ({ ctx, input }) => {
             await sendWorkFlowExecution({ workflowId: input.id });
         }),
-    create: protectedProcedure
+    create: premiumProcedure
         .mutation((
             { ctx }
         ) => {
@@ -34,7 +33,7 @@ export const workFlowRouters = createTRPCRouter({
                 }
             })
         }),
-    remove: protectedProcedure
+    remove: premiumProcedure
         .input(z.object({
             id: z.string().min(1, "WorkFlow Id is required"),
         }))
@@ -48,7 +47,7 @@ export const workFlowRouters = createTRPCRouter({
                 }
             })
         }),
-    updateName: protectedProcedure
+    updateName: premiumProcedure
         .input(z.object({
             id: z.string().min(1, "WorkFlow Id is required"),
             name: z.string().min(1, "WorkFlow name is required"),
@@ -66,7 +65,7 @@ export const workFlowRouters = createTRPCRouter({
                 }
             })
         }),
-    update: protectedProcedure
+    update: premiumProcedure
         .input(z.object({
             id: z.string().min(1, "WorkFlow Id is required"),
             nodes: z.array(z.object({
@@ -144,7 +143,7 @@ export const workFlowRouters = createTRPCRouter({
                 });
             });
         }),
-    getOne: protectedProcedure
+    getOne: premiumProcedure
         .input(z.object({
             id: z.string().min(1, "WorkFlow Id is required"),
         }))
@@ -186,7 +185,7 @@ export const workFlowRouters = createTRPCRouter({
                 edges
             };
         }),
-    getMany: protectedProcedure
+    getMany: premiumProcedure
         .input(z.object({
             search: z.string().default(""),
             page: z.number().default(PAGINATION.DEFAULT_PAGE),
