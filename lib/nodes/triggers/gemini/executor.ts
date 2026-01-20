@@ -6,6 +6,7 @@ import { GeminiFormValues } from "@/components/editor/nodes/executions/gemini/di
 import { generateText } from 'ai'
 import { createGoogleGenerativeAI } from '@ai-sdk/google'
 import prisma from "@/lib/db";
+import { CredentialInfo, decrypt } from "@/lib/encryption";
 
 
 HandleBars.registerHelper('json', (aString) => {
@@ -96,8 +97,10 @@ export const geminiExecutor: NodeExecutor<Partial<GeminiFormValues>> = async ({
 
         if (!credential) throw new NonRetriableError("Gemini Node: API KEY is required")
 
+        const apiKey = decrypt(credential.value as CredentialInfo);
+
         //fetch credientiels of the user
-        const google = createGoogleGenerativeAI({ apiKey: credential.value });
+        const google = createGoogleGenerativeAI({ apiKey });
 
 
         const { steps } = await step.ai.wrap(

@@ -3,6 +3,7 @@ import { createTRPCRouter, premiumProcedure, protectedProcedure } from '@/trpc/i
 import z from 'zod';
 import { PAGINATION } from '../constants';
 import { CredientielType } from '../generated/prisma/enums';
+import { encrypt } from '../encryption';
 
 export const credentielRouters = createTRPCRouter({
     create: premiumProcedure
@@ -14,11 +15,13 @@ export const credentielRouters = createTRPCRouter({
         .mutation((
             { ctx, input }
         ) => {
+            const encryptedValue = encrypt(input.value);
+
             return prisma.credientiels.create({
                 data: {
                     name: input.name,
                     type: input.type,
-                    value: input.value,
+                    value: encryptedValue,
                     userId: ctx.auth.user.id,
                 }
             })

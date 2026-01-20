@@ -6,6 +6,7 @@ import { createOpenAI } from '@ai-sdk/openai'
 import { openAIContextChannel, openAIStatusChannel } from "@/inngest/channels/openai";
 import { OpenAIFormValues } from "@/components/editor/nodes/executions/openai/dialog";
 import prisma from "@/lib/db";
+import { CredentialInfo, decrypt } from "@/lib/encryption";
 
 
 HandleBars.registerHelper('json', (aString) => {
@@ -94,8 +95,10 @@ export const openAIExecutor: NodeExecutor<Partial<OpenAIFormValues>> = async ({
 
         if (!credential) throw new NonRetriableError("OpenAI Node: API KEY is required")
 
+        const apiKey = decrypt(credential.value as CredentialInfo);
+
         const openai = createOpenAI({
-            apiKey: credential.value,
+            apiKey
         });
 
         const { steps } = await step.ai.wrap(

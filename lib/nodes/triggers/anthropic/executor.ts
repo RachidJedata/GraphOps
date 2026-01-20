@@ -6,6 +6,7 @@ import { generateText } from 'ai'
 import { createAnthropic } from '@ai-sdk/anthropic'
 import { AnthropicFormValues } from "@/components/editor/nodes/executions/anthropic/dialog";
 import prisma from "@/lib/db";
+import { CredentialInfo, decrypt } from "@/lib/encryption";
 
 
 HandleBars.registerHelper('json', (aString) => {
@@ -96,8 +97,10 @@ export const anthropicExecutor: NodeExecutor<Partial<AnthropicFormValues>> = asy
 
         if (!credential) throw new NonRetriableError("Anthropic Node: API KEY is required")
 
+        const apiKey = decrypt(credential.value as CredentialInfo);
+
         const anthropic = createAnthropic({
-            apiKey: credential.value,
+            apiKey
         });
 
         const { steps } = await step.ai.wrap(

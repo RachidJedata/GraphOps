@@ -119,9 +119,6 @@ model Node {
 
   outputConnections Connection[] @relation("ToNode")
   inputConnections  Connection[] @relation("FromNode")
-
-  credientiels   Credientiels? @relation(fields: [credientielsId], references: [id])
-  credientielsId String?
 }
 
 model Connection {
@@ -148,12 +145,11 @@ model Connection {
 model Credientiels {
   id     String          @id @default(uuid())
   name   String
-  value  String
+  value  Json
   userId String
   type   CredientielType
   user   User            @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  Node      Node[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -171,7 +167,7 @@ enum ExecutionStatus {
 }
 
 model Execution {
-  id   String @id @default(uuid())
+  id String @id @default(uuid())
 
   startedAt   DateTime  @default(now())
   completedAt DateTime?
@@ -179,9 +175,8 @@ model Execution {
   inngestEventId String          @unique
   status         ExecutionStatus @default(RUNNING)
 
-  error String? @db.Text
+  error      String? @db.Text
   errorStack String? @db.Text
-
 
   workflowId String
   workflow   WorkFlow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
