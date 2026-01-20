@@ -79,7 +79,6 @@ export function useHandleCreateWorkflow() {
                 router.push(`/workflows/${data.id}`);
             },
             onError: (err) => {
-                console.error(err.message);
                 handleError(err);
             },
         });

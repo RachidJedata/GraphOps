@@ -1,6 +1,6 @@
 import { generateSlug } from 'random-word-slugs'
 import prisma from '@/lib/db';
-import { createTRPCRouter, premiumProcedure } from '@/trpc/init';
+import { createTRPCRouter, premiumProcedure, protectedProcedure } from '@/trpc/init';
 import z from 'zod';
 import { PAGINATION } from '../constants';
 import { NodeType } from '../generated/prisma/enums';
@@ -33,7 +33,7 @@ export const workFlowRouters = createTRPCRouter({
                 }
             })
         }),
-    remove: premiumProcedure
+    remove: protectedProcedure
         .input(z.object({
             id: z.string().min(1, "WorkFlow Id is required"),
         }))
@@ -47,7 +47,7 @@ export const workFlowRouters = createTRPCRouter({
                 }
             })
         }),
-    updateName: premiumProcedure
+    updateName: protectedProcedure
         .input(z.object({
             id: z.string().min(1, "WorkFlow Id is required"),
             name: z.string().min(1, "WorkFlow name is required"),
@@ -143,7 +143,7 @@ export const workFlowRouters = createTRPCRouter({
                 });
             });
         }),
-    getOne: premiumProcedure
+    getOne: protectedProcedure
         .input(z.object({
             id: z.string().min(1, "WorkFlow Id is required"),
         }))
@@ -185,7 +185,7 @@ export const workFlowRouters = createTRPCRouter({
                 edges
             };
         }),
-    getMany: premiumProcedure
+    getMany: protectedProcedure
         .input(z.object({
             search: z.string().default(""),
             page: z.number().default(PAGINATION.DEFAULT_PAGE),
