@@ -8,6 +8,7 @@ import Image from "next/image";
 import { BaseHandle } from "@/components/react-flow/base-handle";
 import { Position, useReactFlow } from "@xyflow/react";
 import { NodeStatus, NodeStatusIndicator } from "@/components/react-flow/node-status-indicator";
+import { toast } from "sonner";
 
 
 interface BaseTriggerNodeProps {
@@ -19,6 +20,7 @@ interface BaseTriggerNodeProps {
     status?: NodeStatus;
     onSettingsClick?: () => void;
     onDoubleClick?: () => void;
+    errorMessage?: string;
 
 }
 
@@ -31,6 +33,7 @@ export const BaseTriggerNode = memo(({
     onDoubleClick,
     children,
     status = 'initial',
+    errorMessage,
 }: BaseTriggerNodeProps) => {
 
     const { setNodes, setEdges } = useReactFlow();
@@ -40,6 +43,11 @@ export const BaseTriggerNode = memo(({
         setEdges((eds) => eds.filter((e) => e.source !== id && e.target !== id));
     }
 
+    useEffect(() => {
+        if (!errorMessage) return;
+
+        toast.error(errorMessage);
+    }, [errorMessage]);
 
     return (
         <WorkFlowNode

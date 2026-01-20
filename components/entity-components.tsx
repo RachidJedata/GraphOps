@@ -558,7 +558,7 @@ export const EntityItem: React.FC<EntityItemProps> = ({
 
                 {/* Content Section */}
                 <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-base truncate mb-1">
+                    <h3 className="font-semibold text-base truncate mb-1 first-letter:capitalize lowercase">
                         {title}
                     </h3>
                     {subtitle && (

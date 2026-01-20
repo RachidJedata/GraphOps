@@ -92,7 +92,8 @@ export const GeminiNode = memo((props: NodeProps<GeminiNodeProps>) => {
                 description={description}
                 name="Gemini"
                 icon={"/icons/gemini.svg"}
-                status={nodeStatus}
+                status={nodeStatus.status}
+                errorMessage={nodeStatus.errorMessage}
                 onDoubleClick={handleDoubleClick}
                 onSettingsClick={handleDoubleClick}
             />

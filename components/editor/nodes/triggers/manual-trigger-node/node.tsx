@@ -31,7 +31,8 @@ export const ManualTriggerNode = memo((props: NodeProps) => {
                 id={props.id}
                 icon={MousePointerIcon}
                 name="Manual Trigger"
-                status={nodeStatus}
+                status={nodeStatus.status}
+                errorMessage={nodeStatus.errorMessage}
                 onDoubleClick={handleDoubleClick}
                 onSettingsClick={handleDoubleClick}
             />

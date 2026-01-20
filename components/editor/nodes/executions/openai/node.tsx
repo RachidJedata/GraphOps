@@ -94,7 +94,8 @@ export const OpenAINode = memo((props: NodeProps<OpenAINodeProps>) => {
                 description={description}
                 name="OpenAI"
                 icon={"/icons/openai.svg"}
-                status={nodeStatus}
+                status={nodeStatus.status}
+                errorMessage={nodeStatus.errorMessage}
                 onDoubleClick={handleDoubleClick}
                 onSettingsClick={handleDoubleClick}
             />

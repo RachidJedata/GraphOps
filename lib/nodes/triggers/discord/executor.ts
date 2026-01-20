@@ -39,6 +39,7 @@ export const DiscordExecutor: NodeExecutor<Partial<DiscordFormValues>> = async (
         await publish(discordStatusChannel().status({
             nodeId,
             status: "error",
+            error: "Discord node: message content is required",
         }));
         throw new NonRetriableError("Discord node: message content is required ");
     }
@@ -47,6 +48,7 @@ export const DiscordExecutor: NodeExecutor<Partial<DiscordFormValues>> = async (
         await publish(discordStatusChannel().status({
             nodeId,
             status: "error",
+            error: "Discord node: No variable Name given",
         }));
         throw new NonRetriableError("Discord node: No variable Name given");
     }
@@ -55,6 +57,7 @@ export const DiscordExecutor: NodeExecutor<Partial<DiscordFormValues>> = async (
         await publish(discordStatusChannel().status({
             nodeId,
             status: "error",
+            error: "Discord node: webhook URL is required",
         }));
         throw new NonRetriableError("Discord node: webhook URL is required");
     }
@@ -113,6 +116,7 @@ export const DiscordExecutor: NodeExecutor<Partial<DiscordFormValues>> = async (
         await publish(discordStatusChannel().status({
             nodeId,
             status: "error",
+            error: "Discord node: JSON format in body is invalid",
         }));
 
         // Handle specific non-retriable errors
