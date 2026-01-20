@@ -17,7 +17,7 @@ export function useNodeStatus({
     refreshToken,
     topic,
 }: UseNodeStatusOptions) {
-    const [status, setStatus] = useState<{ status: NodeStatus, errorMessage: string | undefined }>({ status: "initial", errorMessage: "" });
+    const [status, setStatus] = useState<{ status: NodeStatus, errorMessage: string | undefined }>({ status: "initial", errorMessage: undefined });
 
     const {
         data,

@@ -7,10 +7,9 @@ import { NodeType } from "@/lib/generated/prisma/enums";
 import { useNodeStatus } from "@/hooks/nodes/use-node-status";
 import { useNodeContext } from "@/hooks/nodes/use-node-context";
 import { OpenAIFormValues } from "./dialog";
-import { fetchGeminiContextRealtimeToken } from "@/lib/nodes/triggers/gemini/get-subscribe-token";
 import OpenAINodeDialog from "./dialog";
 import { OPENAI_CONTEXT_CHANNEL_NAME, OPENAI_STATUS_CHANNEL_NAME } from "@/inngest/channels/openai";
-import { fetchOpenAIStatusRealtimeToken } from "@/lib/nodes/triggers/openai/get-subscribe-token";
+import { fetchOpenAIContextRealtimeToken, fetchOpenAIStatusRealtimeToken } from "@/lib/nodes/triggers/openai/get-subscribe-token";
 
 type OpenAINodeProps = Node<OpenAIFormValues>;
 
@@ -45,12 +44,12 @@ export const OpenAINode = memo((props: NodeProps<OpenAINodeProps>) => {
     useEffect(() => {
         if (nodeData.variableName) return;
 
-        const nodeCount = getNodes().filter(node => node.type === NodeType.GEMINI).length
+        const nodeCount = getNodes().filter(node => node.type === NodeType.OPENAI).length
 
         setNodes((nds) =>
             nds.map((node) =>
                 node.id === props.id
-                    ? { ...node, data: { ...node.data, variableName: `anthropic${nodeCount}` } }
+                    ? { ...node, data: { ...node.data, variableName: `openai${nodeCount}` } }
                     : node
             )
         );
@@ -68,14 +67,14 @@ export const OpenAINode = memo((props: NodeProps<OpenAINodeProps>) => {
         dataType: "inputData",
         nodeId: props.id,
         topic: "context",
-        refreshToken: fetchGeminiContextRealtimeToken,
+        refreshToken: fetchOpenAIContextRealtimeToken,
     });
     const outputData = useNodeContext({
         channel: OPENAI_CONTEXT_CHANNEL_NAME,
         dataType: "outputData",
         nodeId: props.id,
         topic: "context",
-        refreshToken: fetchGeminiContextRealtimeToken,
+        refreshToken: fetchOpenAIContextRealtimeToken,
     });
 
     return (
