@@ -19,6 +19,7 @@ HandleBars.registerHelper('json', (aString) => {
 export const openAIExecutor: NodeExecutor<Partial<OpenAIFormValues>> = async ({
     nodeId,
     data,
+    userId,
     context,
     step,
     publish,
@@ -82,6 +83,7 @@ export const openAIExecutor: NodeExecutor<Partial<OpenAIFormValues>> = async ({
             return await prisma.credientiels.findUnique({
                 where: {
                     id: credentialId,
+                    userId,
                 }
             })
         });

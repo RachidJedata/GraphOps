@@ -7,6 +7,8 @@ import { StripeTriggerExecutor } from "../nodes/executions/stripe-trigger/execut
 import { geminiExecutor } from "../nodes/triggers/gemini/executor";
 import { openAIExecutor } from "../nodes/triggers/openai/executor";
 import { anthropicExecutor } from "../nodes/triggers/anthropic/executor";
+import { DiscordExecutor } from "../nodes/triggers/discord/executor";
+import { SlackExecutor } from "../nodes/triggers/slack/executor";
 
 export const executorRegistry: Partial<Record<NodeType, NodeExecutor>> = {
     [NodeType.MANUAL_TRIGGER]: ManualTriggerExecutor,
@@ -16,6 +18,8 @@ export const executorRegistry: Partial<Record<NodeType, NodeExecutor>> = {
     [NodeType.GEMINI]: geminiExecutor,
     [NodeType.OPENAI]: openAIExecutor,
     [NodeType.ANTHROPIC]: anthropicExecutor,
+    [NodeType.DISCORD]: DiscordExecutor,
+    [NodeType.SLACK]: SlackExecutor,
 
 }
 
