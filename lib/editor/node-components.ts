@@ -7,6 +7,8 @@ import { StripeTriggerNode } from "@/components/editor/nodes/triggers/stripe-tri
 import { GeminiNode } from "@/components/editor/nodes/executions/gemini/node";
 import { OpenAINode } from "@/components/editor/nodes/executions/openai/node";
 import { anthropicNode } from "@/components/editor/nodes/executions/anthropic/node";
+import { DiscordNode } from "@/components/editor/nodes/executions/discord/node";
+import { SlackNode } from "@/components/editor/nodes/executions/slack/node";
 
 export const nodeComponents = {
     [NodeType.INITIAL]: InitialNode,
@@ -17,6 +19,8 @@ export const nodeComponents = {
     [NodeType.GEMINI]: GeminiNode,
     [NodeType.ANTHROPIC]: anthropicNode,
     [NodeType.OPENAI]: OpenAINode,
+    [NodeType.DISCORD]: DiscordNode,
+    [NodeType.SLACK]: SlackNode,
 
 };
 // } as const satisfies NodeTypes;

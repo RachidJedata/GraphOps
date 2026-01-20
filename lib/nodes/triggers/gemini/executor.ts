@@ -22,6 +22,7 @@ HandleBars.registerHelper('json', (aString) => {
 export const geminiExecutor: NodeExecutor<Partial<GeminiFormValues>> = async ({
     nodeId,
     data,
+    userId,
     context,
     step,
     publish,
@@ -84,6 +85,7 @@ export const geminiExecutor: NodeExecutor<Partial<GeminiFormValues>> = async ({
             return await prisma.credientiels.findUnique({
                 where: {
                     id: credentialId,
+                    userId,
                 }
             })
         });

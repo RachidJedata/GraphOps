@@ -23,6 +23,7 @@ export const anthropicExecutor: NodeExecutor<Partial<AnthropicFormValues>> = asy
     data,
     context,
     step,
+    userId,
     publish,
 }) => {
 
@@ -84,6 +85,7 @@ export const anthropicExecutor: NodeExecutor<Partial<AnthropicFormValues>> = asy
             return await prisma.credientiels.findUnique({
                 where: {
                     id: credentialId,
+                    userId,
                 }
             })
         });
